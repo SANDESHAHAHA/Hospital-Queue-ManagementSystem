@@ -42,7 +42,7 @@ class User extends Model{
 
     @Column({
         type:DataType.STRING,
-        defaultValue:"customer"
+        defaultValue:"patient"
     })
     declare role: 'patient'|'admin'|'doctor'
 

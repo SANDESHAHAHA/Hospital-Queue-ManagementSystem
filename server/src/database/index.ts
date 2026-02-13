@@ -9,6 +9,11 @@ const sequelize = new Sequelize(process.env.CONNECTION_STRING as string,{
 })
 
 
+//model relations
+
+User.hasMany(Doctor,{foreignKey:"userId"})
+Doctor.belongsTo(User,{foreignKey:"userId"})
+
 try {
     await sequelize.authenticate()
     console.log("database connected successfully !")

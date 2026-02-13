@@ -17,32 +17,23 @@ class Doctor extends Model{
         type:DataType.UUID,
         defaultValue:DataType.UUIDV4
     })
-    declare id : string
-
-    @Column({
-        type:DataType.STRING,
-        allowNull:false
-    })
-    declare firstName:string
-
-    @Column({
-        type:DataType.STRING,
-        allowNull:false
-    })
-    declare lastName:string
+    declare id : string 
 
     @Column({
         type:DataType.STRING,
         allowNull:false
     })
     declare specialization : string
+
+
     @Column({
         type:DataType.STRING,
         allowNull:false
     })
     declare licenseNumber:string
     @Column({
-        type:DataType.STRING
+        type:DataType.BOOLEAN,
+        defaultValue:false
     })
     declare isApproved:string
 
@@ -50,7 +41,7 @@ class Doctor extends Model{
         type:DataType.INTEGER,
         allowNull:false,
         validate:{
-            min:1,
+            min:5,
             max:240
         }
     })
