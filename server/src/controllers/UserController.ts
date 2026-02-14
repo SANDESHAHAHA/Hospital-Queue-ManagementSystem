@@ -21,7 +21,8 @@ class UserController{
             userName,
             email,
             password:bcrypt.hashSync(password,10),
-            phoneNumber
+            phoneNumber,
+
         })
         
         res.status(200).json({
