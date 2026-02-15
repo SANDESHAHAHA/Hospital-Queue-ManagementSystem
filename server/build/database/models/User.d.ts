@@ -4,7 +4,7 @@ declare class User extends Model {
     userName: string;
     email: string;
     password: string;
-    role: 'customer' | 'admin';
+    role: 'patient' | 'admin' | 'doctor';
     phoneNumber: string;
 }
 export default User;

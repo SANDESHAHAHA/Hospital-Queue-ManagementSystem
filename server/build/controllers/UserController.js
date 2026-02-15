@@ -1,6 +1,8 @@
 import User from "../database/models/User.js";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import Doctor from "../database/models/Doctor.js";
+import Schedule from "../database/models/Schedule.js";
 class UserController {
     static async registerUser(req, res) {
         const { userName, email, password, phoneNumber } = req.body ?? {};
@@ -14,7 +16,7 @@ class UserController {
             userName,
             email,
             password: bcrypt.hashSync(password, 10),
-            phoneNumber
+            phoneNumber,
         });
         res.status(200).json({
             message: "User registerd successfully !"
@@ -68,6 +70,34 @@ class UserController {
             data
         });
         return;
+    }
+    static async getAllDoctors(req, res) {
+        const data = await Doctor.findAll();
+        if (data.length <= 0) {
+            res.status(404).json({
+                message: "No doctors found !",
+                data: []
+            });
+            return;
+        }
+        // if doctors found return doctors 
+        res.status(200).json({
+            message: "All Doctors fetched suucessfully !",
+            data
+        });
+    }
+    static async getAllSlots(req, res) {
+        const data = await Schedule.findAll();
+        if (data.length <= 0) {
+            res.status(404).json({
+                message: "No schedules found booked by the user !"
+            });
+            return;
+        }
+        res.status(200).json({
+            message: "Schedules fetched successfully !",
+            data
+        });
     }
 }
 export default UserController;

@@ -1,0 +1,1 @@
+{"version":3,"file":"Appointment.d.ts","sourceRoot":"","sources":["../../../src/database/models/Appointment.ts"],"names":[],"mappings":"AAAA,OAAO,EACH,KAAK,EAIR,MAAM,sBAAsB,CAAA;AAE7B,cAeM,WAAY,SAAQ,KAAK;IAMnB,EAAE,EAAG,MAAM,CAAA;IAMX,IAAI,EAAC,MAAM,CAAA;IAKX,IAAI,EAAC,MAAM,CAAA;IAOX,MAAM,EAAE,QAAQ,GAAG,WAAW,GAAG,WAAW,CAAA;CAEvD;AACD,eAAe,WAAW,CAAA"}

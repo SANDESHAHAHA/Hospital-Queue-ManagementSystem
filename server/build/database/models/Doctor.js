@@ -4,8 +4,8 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-import { Table, Column, Model, DataType } from 'sequelize-typescript';
-let User = class User extends Model {
+import { Table, Model, DataType, Column, } from 'sequelize-typescript';
+let Doctor = class Doctor extends Model {
 };
 __decorate([
     Column({
@@ -13,50 +13,42 @@ __decorate([
         type: DataType.UUID,
         defaultValue: DataType.UUIDV4
     })
-], User.prototype, "id", void 0);
+], Doctor.prototype, "id", void 0);
 __decorate([
     Column({
         type: DataType.STRING,
         allowNull: false
     })
-], User.prototype, "userName", void 0);
+], Doctor.prototype, "specialization", void 0);
 __decorate([
     Column({
         type: DataType.STRING,
-        allowNull: false,
-        unique: true
+        allowNull: false
     })
-], User.prototype, "email", void 0);
+], Doctor.prototype, "licenseNumber", void 0);
 __decorate([
     Column({
-        type: DataType.STRING,
-        allowNull: false,
-        validate: {
-            len: [6, 100]
-        }
+        type: DataType.BOOLEAN,
+        defaultValue: false
     })
-], User.prototype, "password", void 0);
+], Doctor.prototype, "isApproved", void 0);
 __decorate([
     Column({
-        type: DataType.STRING,
-        defaultValue: "patient"
-    })
-], User.prototype, "role", void 0);
-__decorate([
-    Column({
-        type: DataType.STRING,
+        type: DataType.INTEGER,
         allowNull: false,
         validate: {
-            len: [10, 10]
-        }
+            min: 0,
+            max: 240
+        },
+        defaultValue: 0
     })
-], User.prototype, "phoneNumber", void 0);
-User = __decorate([
+], Doctor.prototype, "avgConsultationTime", void 0);
+Doctor = __decorate([
     Table({
-        tableName: "users",
-        modelName: "User",
+        tableName: 'doctors',
+        modelName: 'Doctor',
         timestamps: true
     })
-], User);
-export default User;
-//# sourceMappingURL=User.js.map
+], Doctor);
+export default Doctor;
+//# sourceMappingURL=Doctor.js.map

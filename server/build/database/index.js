@@ -1,8 +1,14 @@
 import { Sequelize } from "sequelize-typescript";
 import User from "./models/User.js";
+import Doctor from "./models/Doctor.js";
+import Appointment from "./models/Appointment.js";
+import Schedule from "./models/Schedule.js";
 const sequelize = new Sequelize(process.env.CONNECTION_STRING, {
-    models: [User]
+    models: [User, Doctor, Appointment, Schedule]
 });
+//model relations
+User.hasMany(Doctor, { foreignKey: "userId" });
+Doctor.belongsTo(User, { foreignKey: "userId" });
 try {
     await sequelize.authenticate();
     console.log("database connected successfully !");

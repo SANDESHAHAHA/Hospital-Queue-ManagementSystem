@@ -41,9 +41,10 @@ class Doctor extends Model{
         type:DataType.INTEGER,
         allowNull:false,
         validate:{
-            min:5,
+            min:0,
             max:240
-        }
+        },
+        defaultValue : 0
     })
     declare avgConsultationTime:number
 }
