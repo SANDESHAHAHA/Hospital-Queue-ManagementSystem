@@ -4,8 +4,10 @@ import { Role } from '../globals/types/Role.js'
 import errorHandler from '../globals/errorHandler/ErrorHandler.js'
 import DoctorController from '../controllers/DoctorController.js'
 
+
 const router:Router = express.Router()
 
 router.route("/applyDoctor").post(AuthMiddleware.isLoggedIn as unknown as RequestHandler,AuthMiddleware.restrictTo(Role.Patient) as unknown as RequestHandler,errorHandler(DoctorController.applyForDoctor))
+router.route("/setConsultationTime").post(AuthMiddleware.isLoggedIn as unknown as RequestHandler,AuthMiddleware.restrictTo(Role.Doctor) as unknown as RequestHandler,errorHandler(DoctorController.setConsultationTime))
 
 export default router

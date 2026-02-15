@@ -8,5 +8,6 @@ const router:Router = express.Router()
 
 router.route("/getAppliedDoctors").get(AuthMiddleware.isLoggedIn as unknown as RequestHandler,AuthMiddleware.restrictTo(Role.Admin) as unknown as RequestHandler,errorHandler(AdminController.getAppliedDoctors))
 router.route("/getApprovedDoctors").get(AuthMiddleware.isLoggedIn as unknown as RequestHandler,AuthMiddleware.restrictTo(Role.Admin) as unknown as RequestHandler,errorHandler(AdminController.viewApprovedDoctors))
+router.route("/approveDoctor/:doctorId").patch(AuthMiddleware.isLoggedIn as unknown as RequestHandler,AuthMiddleware.restrictTo(Role.Admin) as unknown as RequestHandler,errorHandler(AdminController.approveDoctor))
 
 export default router

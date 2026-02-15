@@ -1,6 +1,8 @@
 import type { Request,Response } from "express";
 import Doctor from "../database/models/Doctor.js";
 import { endianness } from "node:os";
+import User from "../database/models/User.js";
+import { Role } from "../globals/types/Role.js";
 
 interface IdoctorRequest extends Request {
     user:{
@@ -10,6 +12,7 @@ interface IdoctorRequest extends Request {
         phoneNumber:string
     }
 }
+
 
 class DoctorController {
     public static async applyForDoctor(req:IdoctorRequest,res:Response):Promise<void>{
