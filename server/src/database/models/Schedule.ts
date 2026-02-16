@@ -6,8 +6,8 @@ import {
 } from 'sequelize-typescript'
 
 @Table({
-    modelName:"schedules",
-    tableName:"Schedule",
+    tableName:"schedules",
+    modelName:"Schedule",
     timestamps:true
 })
 // need doctor id as a foreign key

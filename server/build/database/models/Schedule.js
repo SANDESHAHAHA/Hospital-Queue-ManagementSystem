@@ -36,8 +36,8 @@ __decorate([
 ], Schedule.prototype, "endTime", void 0);
 Schedule = __decorate([
     Table({
-        modelName: "schedules",
-        tableName: "Schedule",
+        tableName: "schedules",
+        modelName: "Schedule",
         timestamps: true
     })
     // need doctor id as a foreign key

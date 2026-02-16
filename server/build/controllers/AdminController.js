@@ -8,7 +8,13 @@ class AdminController {
         const data = await Doctor.findAll({
             where: {
                 isApproved: true
-            }
+            },
+            include: [
+                {
+                    model: User,
+                    attributes: ["id", "userName", "email", "role", "phoneNumber", "createdAt", "updatedAt"]
+                }
+            ]
         });
         if (data.length <= 0) {
             res.status(404).json({
@@ -58,7 +64,7 @@ class AdminController {
             return;
         }
         await doctor.update({
-            isApporved: true
+            isApproved: true
         });
         await User.update({
             role: Role.Doctor

@@ -1,9 +1,8 @@
 import type { Request,Response } from "express";
 import Doctor from "../database/models/Doctor.js";
-import { endianness } from "node:os";
 import User from "../database/models/User.js";
-import { Role } from "../globals/types/Role.js";
-
+import { Op } from "sequelize";
+import Schedule from "../database/models/Schedule.js";
 interface IdoctorRequest extends Request {
     user:{
         id:string,
@@ -84,7 +83,88 @@ class DoctorController {
         })
     }
     public static async setDoctorAvailability(req:IdoctorRequest,res:Response):Promise<void>{
-        
+        const {date,startTime,endTime} = req.body ?? {}
+        const userId = req.user.id
+
+        if(!date || !startTime || !endTime){
+            res.status(400).json({
+                message:"Please send date, startTime and endTime"
+
+            })
+            return
+        }
+        if(startTime >= endTime){
+            res.status(400).json({
+            message:"startTime must be earlier than endTime !"
+            })
+            return
+        }
+        //prevent past dates 
+        const today = new Date().toISOString().split("T")[0];
+        if(today){
+            if(date<today){
+                res.status(400).json({
+                    message :"Cannot set the availability in the past !"
+                })
+                return 
+            }
+        }
+    // if availability is for today , check time 
+    if(date === today){
+        const currentTime = new Date().toTimeString().slice(0,5); // HH:MM:SS
+
+        if(endTime <= currentTime){
+            res.status(400).json({
+                message : "Cannot set availability for past time today !"
+            })
+        }
+    }
+    // find doctor 
+    const doctor = await Doctor.findOne({
+        where:{
+            userId
+        }
+    })
+    if(!doctor){
+        res.status(400).json({
+            message:"Doctor profile not found !"
+
+        })
+        return
+    }
+    if(!doctor.isApproved){
+        res.status(403).json({
+            message : "Doctor not approved yet !"
+        })
+        return 
+    }
+    //check overlap availability 
+
+    const overlapping = await Schedule.findOne({
+        where:{
+            doctorId : doctor.id,
+            date,
+            startTime :{[Op.lt]:endTime},
+            endTime: {[Op.gt]:startTime}
+        }
+    })
+    if(overlapping){
+        res.status(400).json({
+            message : "Availability overlaps with existing schedule !"
+        })
+        return 
+    }
+    // finally create schedule 
+    const schedule = await Schedule.create({
+        doctorId: doctor.id,
+        date,
+        startTime,
+        endTime
+    })
+    res.status(201).json({
+        message : "Doctor availability created successfully !",
+        data:schedule
+    })
     }
 }
 
