@@ -112,6 +112,7 @@ class UserController{
             data
         })
     }
+    
 }
 
 export default UserController

@@ -45,7 +45,7 @@ class DoctorController {
     public static async setConsultationTime(req:IdoctorRequest,res:Response):Promise<void>{
         const {avgConsultationTime} = req.body ?? {}
         const userId = req.user.id
-        if(!avgConsultationTime || avgConsultationTime<= 0 || avgConsultationTime! == "number"){
+        if(avgConsultationTime === undefined || avgConsultationTime<= 0 || typeof avgConsultationTime!== "number"){
             res.status(400).json({
                 message:"Please provide valid consultation time !"
             })
@@ -54,7 +54,13 @@ class DoctorController {
         const doctor = await Doctor.findOne({
             where:{
                 userId
-            }
+            },
+            include:[
+                {
+                    model:User,
+                    attributes:['id','userName','email','role','phoneNumber']
+                }
+            ]
         })
         if(!doctor){
             res.status(404).json({
@@ -76,6 +82,9 @@ class DoctorController {
             message:"Doctor consultation time set successfully !",
             data:doctor
         })
+    }
+    public static async setDoctorAvailability(req:IdoctorRequest,res:Response):Promise<void>{
+        
     }
 }
 
