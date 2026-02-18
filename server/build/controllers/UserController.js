@@ -72,7 +72,11 @@ class UserController {
         return;
     }
     static async getAllDoctors(req, res) {
-        const data = await Doctor.findAll();
+        const data = await Doctor.findAll({
+            where: {
+                isApproved: true
+            }
+        });
         if (data.length <= 0) {
             res.status(404).json({
                 message: "No doctors found !",

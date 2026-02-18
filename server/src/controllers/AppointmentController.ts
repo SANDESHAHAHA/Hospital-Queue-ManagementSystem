@@ -11,8 +11,14 @@ interface IAppointMentRequest extends Request{
 
 class AppointmentController {
     public static async bookAppointMent(req:IAppointMentRequest,res:Response):Promise<void>{
-        const {doctorId,date,startTime,endTime} = req.body ?? {}
+       const {doctorId,date,startTime,endTime} = req.body ?? {}
         const patientId = req.user.id
+        if(!patientId){
+            res.status(401).json({
+                Unauthorized : "user is missing in request !"
+            })
+            return
+        }
         if(!doctorId || !date || !startTime || !endTime){
             res.status(404).json({
             message : "doctorId , date ,startTime , end Time are required !"
@@ -39,7 +45,7 @@ class AppointmentController {
             return
         }
         // check doctor availability to book an appointment 
-        const availability = await Schedule.findOne({
+        const availability = await Schedule.findOne({ 
             where:{
                 doctorId,
                 date,
@@ -47,6 +53,7 @@ class AppointmentController {
                 endTime :{[Op.gte]:endTime}
             }
         })
+
         if(!availability){
             res.status(400).json({
                 message : "Doctor is not available at this time !"
@@ -58,8 +65,8 @@ class AppointmentController {
             where:{
                 doctorId,
                 date,
-                startTime : {[Op.lt]:endTime},
-                endTime : {[Op.gt]: startTime}
+                startTime : {[Op.lt]:appointMentEnd},
+                endTime : {[Op.gt]: appointMentStart}
             }
         })
         if(overLappingAppointment){
@@ -73,13 +80,20 @@ class AppointmentController {
             doctorId,
             patientId,
             date,
-            startTime,endTime
+            startTime,
+            endTime
         })
+        if(!appointment){
+            res.status(400).json({
+                message:"could not create an appointment !"
+            })
+            return
+        }
         res.status(201).json({
             message:"Appointment booked successfully !",
             data : appointment
         })
-    }
+    } 
 }
 
 export default AppointmentController

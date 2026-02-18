@@ -11,10 +11,14 @@ User.hasMany(Doctor, { foreignKey: "userId" });
 Doctor.belongsTo(User, { foreignKey: "userId" });
 Doctor.hasMany(Schedule, { foreignKey: "doctorId" });
 Schedule.belongsTo(Doctor, { foreignKey: "doctorId" });
+Doctor.hasMany(Appointment, { foreignKey: "doctorId" });
+Appointment.belongsTo(Doctor, { foreignKey: "doctorId" });
+User.hasOne(Appointment, { foreignKey: "patientId" });
+Appointment.belongsTo(User, { foreignKey: "patientId" });
 try {
     await sequelize.authenticate();
     console.log("database connected successfully !");
-    await sequelize.sync({ force: true });
+    await sequelize.sync({ force: false, alter: true });
     console.log('synced !');
 }
 catch (error) {

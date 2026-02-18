@@ -9,6 +9,8 @@ adminSeeder();
 import userRoute from './routes/UserRoute.js';
 import doctorRoute from './routes/DoctorRoute.js';
 import adminRoute from './routes/AdminRoute.js';
+import appointMentRoute from './routes/AppointmentRoute.js';
+app.use("", appointMentRoute);
 app.use("", userRoute);
 app.use("", doctorRoute);
 app.use("", adminRoute);

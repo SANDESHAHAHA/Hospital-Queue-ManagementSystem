@@ -9,11 +9,11 @@ import {
     tableName:"appointments",
     modelName:"Appointment",
     timestamps:true,
-    indexes:[
-        {
-            unique:true,
-            fields:["id","date","time"]
-        }
+    indexes: [
+    {
+        unique: true,
+        fields: ["doctorId", "date", "startTime"]
+    }
     ]
 })
 // if tow requests hits the server by the user at the same time the database enforcess uniquness that is for doctor x at date y and at time z two patients shold not book the same appointment
@@ -32,12 +32,19 @@ class Appointment extends Model{
         type:DataType.DATEONLY,
         allowNull:false
     })
-    declare date:string
+    declare date : string
+
     @Column({
         type:DataType.TIME,
         allowNull:false
     })
-    declare time:string
+    declare startTime:string
+
+    @Column({
+        type:DataType.TIME,
+        allowNull:false
+    })
+    declare endTime:string
 
     @Column({
         type:DataType.STRING,

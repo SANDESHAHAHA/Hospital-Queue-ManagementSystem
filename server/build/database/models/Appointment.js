@@ -29,7 +29,13 @@ __decorate([
         type: DataType.TIME,
         allowNull: false
     })
-], Appointment.prototype, "time", void 0);
+], Appointment.prototype, "startTime", void 0);
+__decorate([
+    Column({
+        type: DataType.TIME,
+        allowNull: false
+    })
+], Appointment.prototype, "endTime", void 0);
 __decorate([
     Column({
         type: DataType.STRING,
