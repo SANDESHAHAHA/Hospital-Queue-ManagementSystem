@@ -17,6 +17,13 @@ Doctor.belongsTo(User,{foreignKey:"userId"})
 Doctor.hasMany(Schedule,{foreignKey:"doctorId"})
 Schedule.belongsTo(Doctor,{foreignKey:"doctorId"})
 
+Doctor.hasMany(Appointment,{foreignKey:"doctorId"})
+Appointment.belongsTo(Doctor,{foreignKey:"doctorId"})
+
+User.hasOne(Appointment,{foreignKey:"patientId"})
+Appointment.belongsTo(User,{foreignKey:"patientId"})
+
+
 try {
     await sequelize.authenticate()
     console.log("database connected successfully !")

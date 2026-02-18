@@ -83,7 +83,11 @@ class UserController{
     }
     public static async getAllDoctors(req:Request,res:Response):Promise<void>{
 
-        const data = await Doctor.findAll()
+        const data = await Doctor.findAll({
+            where:{
+                isApproved : true
+            }
+        })
 
         if(data.length<=0){
             res.status(404).json({
@@ -92,6 +96,7 @@ class UserController{
             })
             return
         }
+
         // if doctors found return doctors 
         res.status(200).json({
             message:"All Doctors fetched suucessfully !",
@@ -112,7 +117,6 @@ class UserController{
             data
         })
     }
-    
 }
 
 export default UserController
