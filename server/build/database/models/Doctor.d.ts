@@ -3,7 +3,7 @@ declare class Doctor extends Model {
     id: string;
     specialization: string;
     licenseNumber: string;
-    isApproved: string;
+    isApproved: boolean;
     avgConsultationTime: number;
 }
 export default Doctor;

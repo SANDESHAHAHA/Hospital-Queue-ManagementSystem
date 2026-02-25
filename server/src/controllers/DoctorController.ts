@@ -35,12 +35,18 @@ class DoctorController {
             })
             return
         }
-        await Doctor.create({
+        const doctor = await Doctor.create({
             userId:req.user.id,
             specialization,
             licenseNumber
         })
+        res.status(201).json({
+            message :"Request has been applied for the roll of Doctor !",
+            data:doctor
+        })
+        return
     }
+ 
     public static async setConsultationTime(req:IdoctorRequest,res:Response):Promise<void>{
         const {avgConsultationTime} = req.body ?? {}
         const userId = req.user.id

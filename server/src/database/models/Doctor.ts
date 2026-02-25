@@ -35,7 +35,7 @@ class Doctor extends Model{
         type:DataType.BOOLEAN,
         defaultValue:false
     })
-    declare isApproved:string
+    declare isApproved:boolean
 
     @Column({
         type:DataType.INTEGER,

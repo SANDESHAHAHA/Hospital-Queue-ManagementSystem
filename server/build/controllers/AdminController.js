@@ -28,7 +28,12 @@ class AdminController {
         });
     }
     static async getAppliedDoctors(req, res) {
-        const data = await Doctor.findAll();
+        const data = await Doctor.findAll({
+            where: {
+                isApproved: false
+            }
+        });
+        console.log(data.length);
         if (data.length <= 0) {
             res.status(400).json({
                 message: "No doctors have applied for the post !",
@@ -40,6 +45,7 @@ class AdminController {
             message: "Available doctor applicants data fetched successfully !",
             data
         });
+        return;
     }
     static async approveDoctor(req, res) {
         const { doctorId } = req.params ?? {};

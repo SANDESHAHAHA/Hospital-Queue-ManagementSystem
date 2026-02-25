@@ -51,7 +51,7 @@ Appointment = __decorate([
         indexes: [
             {
                 unique: true,
-                fields: ["id", "date", "time"]
+                fields: ["doctorId", "date", "startTime"]
             }
         ]
     })
