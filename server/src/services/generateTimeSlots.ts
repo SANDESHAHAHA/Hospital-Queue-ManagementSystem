@@ -1,12 +1,46 @@
 
 
-// function generateTimeSlots(startTime:string,endTime:string,duration:number,breakStart?:string,breakEnd?:string):string[]{
-//     const slots:string[] = []
+function generateTimeSlots(startTime:string,endTime:string,duration:number,breakStart?:string,breakEnd?:string):string[]{
+    const slots:string[] = []
 
-//     const toMinutes = (time:string)=>{
-//         const [h,m] = time.split(":").map(Number)
-//         if(h && m)
-//         return h*60 + m
-//     }
+    const toMinutes = (time:string)=>{
+        const [h = 0, m = 0] = time.split(":").map(Number)
+        return h*60 + m;
+    }
 
-// }
+    const formatTime = (minutes:number)=>{
+        const h = Math.floor(minutes/60)
+        const m = minutes %60
+        return `${h.toString().padStart(2,"0")}:${m.toString().padStart(2,"0")}`
+    }
+
+    let start = toMinutes(startTime)
+    const end = toMinutes(endTime)
+
+    const breakStartMin = breakStart ? toMinutes(breakStart):null;
+    const breakEndMin = breakEnd ? toMinutes(breakEnd) : null;
+
+    // validate inputs and avoid infinite loops
+    if (isNaN(start) || isNaN(end) || duration <= 0 || start >= end) {
+        return slots
+    }
+
+    while (start + duration <= end){
+        const slotEnd = start + duration;
+
+        const overlapsBreak =
+            breakStartMin !== null &&
+            breakEndMin !== null &&
+            start < breakEndMin &&
+            slotEnd > breakStartMin
+
+        if(!overlapsBreak){
+            slots.push(`${formatTime(start)}-${formatTime(slotEnd)}`)
+        }
+
+        start += duration
+    }
+
+    return slots
+}
+export default generateTimeSlots

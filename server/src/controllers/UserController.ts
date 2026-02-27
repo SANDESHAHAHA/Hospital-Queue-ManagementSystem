@@ -86,7 +86,13 @@ class UserController{
         const data = await Doctor.findAll({
             where:{
                 isApproved : true
-            }
+            },
+            include:[
+                {
+                    model:User,
+                    attributes:['id','userName','email','role','phoneNumber']
+                }
+            ]
         })
 
         if(data.length<=0){

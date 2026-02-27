@@ -3,6 +3,7 @@ import Doctor from "../database/models/Doctor.js";
 import User from "../database/models/User.js";
 import { Op } from "sequelize";
 import Schedule from "../database/models/Schedule.js";
+import generateTimeSlots from "../services/generateTimeSlots.js";
 interface IdoctorRequest extends Request {
     user:{
         id:string,
@@ -82,10 +83,25 @@ class DoctorController {
         }
 
         await doctor.update({avgConsultationTime})
-        
+
+        // generate slots for existing/future schedules using the new consultation time
+        const today = new Date().toISOString().split("T")[0]
+        const schedules = await Schedule.findAll({
+            where: {
+                doctorId: doctor.id,
+                date: { [Op.gte]: today }
+            }
+        })
+
+        const slots = schedules.map(s => ({
+            date: s.date,
+            slots: generateTimeSlots(s.startTime, s.endTime, avgConsultationTime)
+        }))
+
         res.status(200).json({
-            message:"Doctor consultation time set successfully !",
-            data:doctor
+            message: "Doctor consultation time set successfully !",
+            data: doctor,
+            generatedSlots: slots
         })
     }
     public static async setDoctorAvailability(req:IdoctorRequest,res:Response):Promise<void>{

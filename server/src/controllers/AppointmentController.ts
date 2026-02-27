@@ -161,7 +161,14 @@ class AppointmentController {
             })
             return
         }
-
+        const appointmentDateTime = new Date(`${appointment.date}T${appointment.startTime}`)
+        const now = new Date()
+        if ((appointmentDateTime.getTime()-now.getTime()) < 60*60*1000){
+             res.status(400).json({
+                message : " Cannot cancel within 1 hour of appointment !"
+            })
+            return
+        }
         const data = await appointment.update({status:AppointmentStatus.CANCELLED})
 
         res.status(200).json({
