@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import Doctor from "../database/models/Doctor.js";
 import Schedule from "../database/models/Schedule.js";
+import generateTimeSlots from "../services/generateTimeSlots.js";
 
 class UserController{
     public static async registerUser(req:Request,res:Response):Promise<void>{
@@ -111,16 +112,33 @@ class UserController{
     }
     public static async getAllSlots(req:Request,res:Response):Promise<void>{
 
-        const data = await Schedule.findAll()
-        if(data.length<=0){
+        const data = await Schedule.findAll({
+            include: [
+                {
+                    model: Doctor,
+                    attributes: ["id", "avgConsultationTime"]
+                }
+            ]
+        })
+
+        if (!data.length) {
             res.status(404).json({
-                message:"No schedules found booked by the user !"
+                message: "No schedules found !",
+                data: []
             })
             return
         }
+
+        const result = data.map(s => {
+            const item: any = s.toJSON()
+            const avg = (item.Doctor && item.Doctor.avgConsultationTime) || 0
+            item.slots = avg > 0 ? generateTimeSlots(item.startTime, item.endTime, avg) : []
+            return item
+        })
+
         res.status(200).json({
-            message:"Schedules fetched successfully !",
-            data
+            message: "Schedules fetched successfully !",
+            data: result
         })
     }
 }

@@ -1,6 +1,8 @@
 import type { Request,Response } from "express";
 import Schedule from "../database/models/Schedule.js";
-import { Op } from "sequelize";
+import Doctor from "../database/models/Doctor.js";
+import generateTimeSlots from "../services/generateTimeSlots.js";
+import { Op, UniqueConstraintError } from "sequelize";
 import Appointment from "../database/models/Appointment.js";
 import { AppointmentStatus } from "../globals/types/AppointmentTypes/Appointment.js";
 
@@ -56,13 +58,33 @@ class AppointmentController {
                 date,
                 startTime : {[Op.lte]:startTime},
                 endTime :{[Op.gte]:endTime}
-            }
+            },
+            include: [
+                {
+                    model: Doctor,
+                    attributes: ["avgConsultationTime"]
+                }
+            ]
         })
 
         if(!availability){
             res.status(400).json({
                 message : "Doctor is not available at this time !"
             })
+            return
+        }
+        // ensure requested startTime matches a generated slot for the schedule
+        const availAny: any = availability
+        const avg = (availAny.Doctor && availAny.Doctor.avgConsultationTime) || 0
+        if (!avg || avg <= 0) {
+            res.status(400).json({ message: "Doctor consultation duration not configured." })
+            return
+        }
+        const generatedSlots = generateTimeSlots(availability.startTime, availability.endTime, avg)
+        const validStarts = new Set(generatedSlots.map(s => s.split("-")[0]))
+        const requestedStart = (startTime || "").slice(0,5)
+        if (!validStarts.has(requestedStart)) {
+            res.status(400).json({ message: "Selected time is not a valid available slot." })
             return
         }
         // prevent double booking 
@@ -80,18 +102,23 @@ class AppointmentController {
             })
             return
         }
-        // create Appointment 
-        const appointment = await Appointment.create({
-            doctorId,
-            patientId,
-            date,
-            startTime,
-            endTime
-        })
-        if(!appointment){
-            res.status(400).json({
-                message:"could not create an appointment !"
+        // create Appointment (catch DB unique-constraint errors from race conditions)
+        let appointment
+        try {
+            appointment = await Appointment.create({
+                doctorId,
+                patientId,
+                date,
+                startTime,
+                endTime
             })
+        } catch (err: any) {
+            if (err instanceof UniqueConstraintError) {
+                res.status(409).json({ message: "Time slot already booked (concurrent request)." })
+                return
+            }
+            // unknown DB error
+            res.status(500).json({ message: "Database error while creating appointment.", error: err.message })
             return
         }
         res.status(201).json({
