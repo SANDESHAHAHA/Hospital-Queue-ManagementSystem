@@ -37,5 +37,16 @@ class Schedule extends Model{
         allowNull:false
     })
     declare endTime:string
+    @Column({
+        type:DataType.TIME,
+        allowNull:true
+    })
+    declare breakStart?:string
+
+    @Column({
+        type:DataType.TIME,
+        allowNull:true
+    })
+    declare breakEnd?:string
 }
 export default Schedule

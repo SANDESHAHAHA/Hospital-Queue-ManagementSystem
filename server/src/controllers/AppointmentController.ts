@@ -80,20 +80,39 @@ class AppointmentController {
             res.status(400).json({ message: "Doctor consultation duration not configured." })
             return
         }
-        const generatedSlots = generateTimeSlots(availability.startTime, availability.endTime, avg)
+        const generatedSlots = generateTimeSlots(availability.startTime, availability.endTime, avg, (availability as any).breakStart, (availability as any).breakEnd)
         const validStarts = new Set(generatedSlots.map(s => s.split("-")[0]))
         const requestedStart = (startTime || "").slice(0,5)
         if (!validStarts.has(requestedStart)) {
             res.status(400).json({ message: "Selected time is not a valid available slot." })
             return
         }
-        // prevent double booking 
+        // ensure requested endTime aligns with slot boundaries and duration is a multiple of avg
+        const validEnds = new Set(generatedSlots.map(s => s.split("-")[1]))
+        const requestedEnd = (endTime || "").slice(0,5)
+        if (!validEnds.has(requestedEnd)) {
+            res.status(400).json({ message: "Selected end time is not aligned with doctor's slot boundaries." })
+            return
+        }
+        const durationMins = (appointMentEnd.getTime() - appointMentStart.getTime()) / (60 * 1000)
+        if (durationMins % avg !== 0) {
+            res.status(400).json({ message: `Appointment duration must be a multiple of ${avg} minutes.` })
+            return
+        }
+        // prevent double booking - compare normalized TIME strings (HH:MM:SS)
+        const normalizeTime = (t:string) => {
+            const s = (t || '').slice(0,8)
+            return s.length === 5 ? `${s}:00` : s
+        }
+        const reqStartTimeStr = normalizeTime(startTime)
+        const reqEndTimeStr = normalizeTime(endTime)
+
         const overLappingAppointment = await Appointment.findOne({
             where:{
                 doctorId,
                 date,
-                startTime : {[Op.lt]:appointMentEnd},
-                endTime : {[Op.gt]: appointMentStart}
+                startTime : {[Op.lt]: reqEndTimeStr},
+                endTime : {[Op.gt]: reqStartTimeStr}
             }
         })
         if(overLappingAppointment){
@@ -217,6 +236,7 @@ class AppointmentController {
         })
         return
     }
+
 }
 
 export default AppointmentController

@@ -5,6 +5,9 @@ import jwt from 'jsonwebtoken'
 import Doctor from "../database/models/Doctor.js";
 import Schedule from "../database/models/Schedule.js";
 import generateTimeSlots from "../services/generateTimeSlots.js";
+import Appointment from "../database/models/Appointment.js";
+import { Op } from "sequelize";
+import { AppointmentStatus } from "../globals/types/AppointmentTypes/Appointment.js";
 
 class UserController{
     public static async registerUser(req:Request,res:Response):Promise<void>{
@@ -111,7 +114,6 @@ class UserController{
         })
     }
     public static async getAllSlots(req:Request,res:Response):Promise<void>{
-
         const data = await Schedule.findAll({
             include: [
                 {
@@ -129,12 +131,43 @@ class UserController{
             return
         }
 
-        const result = data.map(s => {
+        const toMinutes = (t:string) => {
+            const [h = 0, m = 0] = t.slice(0,5).split(":").map(Number)
+            return h*60 + m
+        }
+
+        const result = [] as any[]
+
+        for (const s of data) {
             const item: any = s.toJSON()
             const avg = (item.Doctor && item.Doctor.avgConsultationTime) || 0
-            item.slots = avg > 0 ? generateTimeSlots(item.startTime, item.endTime, avg) : []
-            return item
-        })
+            const generated = avg > 0 ? generateTimeSlots(item.startTime, item.endTime, avg, item.breakStart, item.breakEnd) : []
+
+            // fetch appointments for this doctor and date that are not cancelled
+            const booked = await Appointment.findAll({
+                where: {
+                    doctorId: item.doctorId,
+                    date: item.date,
+                    status: { [Op.ne]: AppointmentStatus.CANCELLED }
+                },
+                attributes: ["startTime","endTime"]
+            })
+
+            const bookedIntervals = booked.map(b => ({
+                s: toMinutes((b as any).startTime),
+                e: toMinutes((b as any).endTime)
+            }))
+
+            const available = generated.filter(slot => {
+                const [sStr = "00:00", eStr = "00:00"] = slot.split("-")
+                const sMin = toMinutes(sStr)
+                const eMin = toMinutes(eStr)
+                return !bookedIntervals.some(bi => sMin < bi.e && eMin > bi.s)
+            })
+
+            item.slots = available
+            result.push(item)
+        }
 
         res.status(200).json({
             message: "Schedules fetched successfully !",

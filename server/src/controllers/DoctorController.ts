@@ -95,7 +95,7 @@ class DoctorController {
 
         const slots = schedules.map(s => ({
             date: s.date,
-            slots: generateTimeSlots(s.startTime, s.endTime, avgConsultationTime)
+            slots: generateTimeSlots(s.startTime, s.endTime, avgConsultationTime, (s as any).breakStart, (s as any).breakEnd)
         }))
 
         res.status(200).json({
@@ -105,7 +105,7 @@ class DoctorController {
         })
     }
     public static async setDoctorAvailability(req:IdoctorRequest,res:Response):Promise<void>{
-        const {date,startTime,endTime} = req.body ?? {}
+        const {date,startTime,endTime,breakStart,breakEnd} = req.body ?? {}
         const userId = req.user.id
 
         if(!date || !startTime || !endTime){
@@ -120,6 +120,17 @@ class DoctorController {
             message:"startTime must be earlier than endTime !"
             })
             return
+        }
+        // validate break times if provided
+        if (breakStart && breakEnd) {
+            if (!(breakStart < breakEnd)) {
+                res.status(400).json({ message: "breakStart must be earlier than breakEnd" })
+                return
+            }
+            if (breakStart <= startTime || breakEnd >= endTime) {
+                res.status(400).json({ message: "Break must be within availability start and end times" })
+                return
+            }
         }
         //prevent past dates 
         const today = new Date().toISOString().split("T")[0];
@@ -181,7 +192,9 @@ class DoctorController {
         doctorId: doctor.id,
         date,
         startTime,
-        endTime
+        endTime,
+        breakStart: breakStart || null,
+        breakEnd: breakEnd || null
     })
     res.status(201).json({
         message : "Doctor availability created successfully !",
