@@ -4,7 +4,6 @@ Column,
 Model,
 DataType
 } from 'sequelize-typescript'
-import { Col } from 'sequelize/lib/utils'
 
 @Table({
     tableName:"users",

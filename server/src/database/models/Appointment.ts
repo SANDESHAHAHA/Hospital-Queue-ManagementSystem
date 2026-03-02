@@ -4,7 +4,6 @@ import {
     Column,
     DataType
 } from 'sequelize-typescript'
-import { Col } from 'sequelize/lib/utils'
 
 @Table({
     tableName:"appointments",
@@ -58,7 +57,7 @@ class Appointment extends Model{
         allowNull:true
     })
     declare queuePosition : number
-    
+
     @Column({
         type:DataType.STRING,
         allowNull:false,
