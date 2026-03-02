@@ -2,7 +2,7 @@ import type { Request,Response } from "express";
 import Schedule from "../database/models/Schedule.js";
 import Doctor from "../database/models/Doctor.js";
 import generateTimeSlots from "../services/generateTimeSlots.js";
-import { Op, UniqueConstraintError } from "sequelize";
+import { Op, UniqueConstraintError, where } from "sequelize";
 import Appointment from "../database/models/Appointment.js";
 import { AppointmentStatus } from "../globals/types/AppointmentTypes/Appointment.js";
 import updateAppointmentStatus from "../services/updateAppointmentStatusService.js";
@@ -241,7 +241,7 @@ class AppointmentController {
 
     public static async updateAppointmentStatus(req:IAppointMentRequest,res:Response):Promise<void>{
         const {status} = req.body ?? {}
-        const {id} = req.params // this is appintment id
+        const {id} = req.params // this is appointment id
         if(!id || !status){
             res.status(400).json({ message : "Please send appointment Id and status !" })
             return
@@ -255,8 +255,25 @@ class AppointmentController {
             })
             return
         }
+        if(status === AppointmentStatus.CHECKED_IN){
+            try {
+            const update = await updated.update({checkInTime:new Date().toString()})
+            if(!update){
+                res.status(404).json({
+                    message : "Couldnot update status !"
+                })
+                return
+            }
+            } catch (error) {
+               res.status(500).json({
+                message :"internal server error !",
+                errorMEssage:error
+               }) 
+            }
+
+        }
         res.status(200).json({
-            message : "Appointment status updated successfully !"
+            message : "Appointment status updated successfully and check in time set!",
         })
     }
 

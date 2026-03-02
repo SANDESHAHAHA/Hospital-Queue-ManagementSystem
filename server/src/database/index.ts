@@ -28,7 +28,7 @@ try {
     await sequelize.authenticate()
     console.log("database connected successfully !")
 
-    // await sequelize.sync({force:false,alter:false})
+    // await sequelize.sync({force:false,alter:true})
     // console.log('synced !')
 } catch (error) {
     console.log("Data base connection error")

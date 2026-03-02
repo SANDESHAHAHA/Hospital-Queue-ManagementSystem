@@ -4,6 +4,7 @@ import {
     Column,
     DataType
 } from 'sequelize-typescript'
+import { Col } from 'sequelize/lib/utils'
 
 @Table({
     tableName:"appointments",
@@ -46,6 +47,18 @@ class Appointment extends Model{
     })
     declare endTime:string
 
+    @Column({
+        type: DataType.STRING, // to set local time else for date utc time was setting i.e. the standard time zone
+        allowNull:true
+    })
+    declare checkInTime : string
+
+    @Column({
+        type:DataType.INTEGER,
+        allowNull:true
+    })
+    declare queuePosition : number
+    
     @Column({
         type:DataType.STRING,
         allowNull:false,
