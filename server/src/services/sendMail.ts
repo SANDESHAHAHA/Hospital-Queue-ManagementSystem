@@ -3,7 +3,7 @@ import nodemailer from 'nodemailer'
 interface IData{
     to:string,
     subject:string,
-    text:string
+    html:string
 }
 
 const sendMail = async(data:IData)=>{
@@ -19,7 +19,7 @@ const sendMail = async(data:IData)=>{
         from:process.env.NODEMAILER_EMAIL,
         to:data.to,
         subject:data.subject,
-        text:data.text
+        html:data.html
     }
     await transporter.sendMail(mailOptions)
 }

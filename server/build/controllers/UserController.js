@@ -7,6 +7,10 @@ import generateTimeSlots from "../services/generateTimeSlots.js";
 import Appointment from "../database/models/Appointment.js";
 import { Op } from "sequelize";
 import { AppointmentStatus } from "../globals/types/AppointmentTypes/Appointment.js";
+import sendMail from "../services/sendMail.js";
+import generateOtp from "../services/GenerateOtp.js";
+import otpHtml from "../utils/htmlBodies/otpHtml.js";
+import RegisterUserHtml from "../utils/htmlBodies/RegisterUserhtml.js";
 class UserController {
     static async registerUser(req, res) {
         const { userName, email, password, phoneNumber } = req.body ?? {};
@@ -22,6 +26,17 @@ class UserController {
             password: bcrypt.hashSync(password, 10),
             phoneNumber,
         });
+        try {
+            await sendMail({
+                to: email,
+                subject: "User registered successfully !",
+                html: RegisterUserHtml(userName)
+            });
+        }
+        catch (error) {
+            // log error, but don't fail registration
+            console.error('sendMail error:', error);
+        }
         res.status(200).json({
             message: "User registerd successfully !"
         });
@@ -55,6 +70,12 @@ class UserController {
         }
         const token = jwt.sign({ userId: data.id }, process.env.JWT_SECRET, {
             expiresIn: "1d"
+        });
+        const otp = generateOtp();
+        await sendMail({
+            to: email,
+            subject: "Login password otp Request !",
+            html: otpHtml(otp)
         });
         res.status(200).json({
             message: "User logged in successfully !",

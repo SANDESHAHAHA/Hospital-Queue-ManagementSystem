@@ -4,6 +4,7 @@ Column,
 Model,
 DataType
 } from 'sequelize-typescript'
+import { Col } from 'sequelize/lib/utils'
 
 @Table({
     tableName:"users",
@@ -54,6 +55,16 @@ class User extends Model{
         }
     })
     declare phoneNumber:string
+
+    @Column({
+        type:DataType.STRING,
+    })
+    declare OTP : string
+
+    @Column({
+        type:DataType.STRING,
+    })
+    declare OTPgeneratedTime : string
 }
 
 export default User

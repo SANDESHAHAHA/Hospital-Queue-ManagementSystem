@@ -5,6 +5,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 import { Table, Column, Model, DataType } from 'sequelize-typescript';
+import { Col } from 'sequelize/lib/utils';
 let User = class User extends Model {
 };
 __decorate([
@@ -51,6 +52,16 @@ __decorate([
         }
     })
 ], User.prototype, "phoneNumber", void 0);
+__decorate([
+    Column({
+        type: DataType.STRING,
+    })
+], User.prototype, "OTP", void 0);
+__decorate([
+    Column({
+        type: DataType.STRING,
+    })
+], User.prototype, "OTPgeneratedTime", void 0);
 User = __decorate([
     Table({
         tableName: "users",

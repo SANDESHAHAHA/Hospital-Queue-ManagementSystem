@@ -8,6 +8,6 @@ router.route("/bookAppointment").post(AuthMiddleware.isLoggedIn, AuthMiddleware.
 router.route("/getAppointmentDetails").get(AuthMiddleware.isLoggedIn, AuthMiddleware.restrictTo(Role.Doctor, Role.Patient), errorHandler(AppointmentController.getMyAppointmentDetails));
 router.route("/cancelMyAppointment/:appointmentId").patch(AuthMiddleware.isLoggedIn, AuthMiddleware.restrictTo(Role.Patient), errorHandler(AppointmentController.cancelMyAppointment));
 router.route("/getAllAppoinments").get(AuthMiddleware.isLoggedIn, errorHandler(AppointmentController.getAllAppointments));
-router.route("/UAS/:id").patch(AuthMiddleware.isLoggedIn, AuthMiddleware.restrictTo(Role.Doctor, Role.Patient), errorHandler(AppointmentController.updateAppointmentStatus));
+router.route("/updateAppointmentStatus/:id").patch(AuthMiddleware.isLoggedIn, AuthMiddleware.restrictTo(Role.Doctor, Role.Patient), errorHandler(AppointmentController.updateAppointmentStatus));
 export default router;
 //# sourceMappingURL=AppointmentRoute.js.map

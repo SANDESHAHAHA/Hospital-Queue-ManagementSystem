@@ -4,6 +4,8 @@ declare class Appointment extends Model {
     date: string;
     startTime: string;
     endTime: string;
+    checkInTime: string;
+    queuePosition: number;
     status: "booked" | "completed" | "cancelled";
 }
 export default Appointment;

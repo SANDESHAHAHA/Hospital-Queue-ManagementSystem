@@ -6,6 +6,8 @@ declare class User extends Model {
     password: string;
     role: 'patient' | 'admin' | 'doctor';
     phoneNumber: string;
+    OTP: string;
+    OTPgeneratedTime: string;
 }
 export default User;
 //# sourceMappingURL=User.d.ts.map

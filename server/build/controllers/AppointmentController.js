@@ -1,11 +1,11 @@
 import Schedule from "../database/models/Schedule.js";
 import Doctor from "../database/models/Doctor.js";
 import generateTimeSlots from "../services/generateTimeSlots.js";
-import { Op, UniqueConstraintError } from "sequelize";
+import { Op, UniqueConstraintError, where } from "sequelize";
 import Appointment from "../database/models/Appointment.js";
 import { AppointmentStatus } from "../globals/types/AppointmentTypes/Appointment.js";
-import updateAppointmentStatus from "../services/updateAppointmentStatusService.js";
 import updateAppointmentStatusService from "../services/updateAppointmentStatusService.js";
+import { resequenceQueuePositions } from "../services/QueuePositionService.js";
 class ExtendedAppointment extends Appointment {
 }
 class AppointmentController {
@@ -199,6 +199,12 @@ class AppointmentController {
             return;
         }
         const data = await appointment.update({ status: AppointmentStatus.CANCELLED });
+        try {
+            await resequenceQueuePositions(appointment.doctorId, appointment.date);
+        }
+        catch (err) {
+            // ignore resequence errors
+        }
         res.status(200).json({
             message: "Appointment cancelled successfully !",
             data
@@ -220,10 +226,28 @@ class AppointmentController {
     }
     static async updateAppointmentStatus(req, res) {
         const { status } = req.body ?? {};
-        const { id } = req.params; // this is appintment id
+        const { id } = req.params; // this is appointment id
         if (!id || !status) {
             res.status(400).json({ message: "Please send appointment Id and status !" });
             return;
+        }
+        const existing = await Appointment.findByPk(id);
+        if (!existing) {
+            res.status(404).json({ message: "Appointment not found !" });
+            return;
+        }
+        // prevent modifying a completed appointment
+        if (existing.status === AppointmentStatus.COMPLETED && status !== AppointmentStatus.COMPLETED) {
+            res.status(400).json({ message: "A completed appointment cannot be modified." });
+            return;
+        }
+        // backend validation: do not allow marking appointment IN_PROGRESS unless patient has checked in
+        if (status === AppointmentStatus.IN_PROGRESS) {
+            const hasCheckIn = Boolean(existing.checkInTime);
+            if (!hasCheckIn) {
+                res.status(400).json({ message: "Patient must check in before marking appointment in progress." });
+                return;
+            }
         }
         const updated = await updateAppointmentStatusService(id, status);
         if (!updated) {
@@ -233,8 +257,34 @@ class AppointmentController {
             });
             return;
         }
+        if (status === AppointmentStatus.CHECKED_IN) {
+            try {
+                const update = await updated.update({ checkInTime: new Date().toString() });
+                if (!update) {
+                    res.status(404).json({
+                        message: "Couldnot update status !"
+                    });
+                    return;
+                }
+            }
+            catch (error) {
+                res.status(500).json({
+                    message: "internal server error !",
+                    errorMEssage: error
+                });
+            }
+        }
+        // when an appointment completes (or is cancelled via status update), resequence positions
+        if (status === AppointmentStatus.COMPLETED || status === AppointmentStatus.CANCELLED) {
+            try {
+                await resequenceQueuePositions(updated.doctorId, updated.date);
+            }
+            catch (err) {
+                // ignore errors here to avoid breaking the status update response
+            }
+        }
         res.status(200).json({
-            message: "Appointment status updated successfully !"
+            message: "Appointment status updated successfully and check in time set!",
         });
     }
 }
