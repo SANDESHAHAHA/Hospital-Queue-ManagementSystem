@@ -10,5 +10,6 @@ router.route("/bookAppointment").post(AuthMiddleware.isLoggedIn as unknown as Re
 router.route("/getAppointmentDetails").get(AuthMiddleware.isLoggedIn as unknown as RequestHandler,AuthMiddleware.restrictTo(Role.Doctor,Role.Patient) as unknown as RequestHandler,errorHandler(AppointmentController.getMyAppointmentDetails))
 router.route("/cancelMyAppointment/:appointmentId").patch(AuthMiddleware.isLoggedIn as unknown as RequestHandler,AuthMiddleware.restrictTo(Role.Patient) as unknown as RequestHandler,errorHandler(AppointmentController.cancelMyAppointment))
 router.route("/getAllAppoinments").get(AuthMiddleware.isLoggedIn as unknown as RequestHandler,errorHandler(AppointmentController.getAllAppointments))
+router.route("/updateAppointmentStatus/:id").patch(AuthMiddleware.isLoggedIn as unknown as RequestHandler,AuthMiddleware.restrictTo(Role.Doctor,Role.Patient) as unknown as RequestHandler,errorHandler(AppointmentController.updateAppointmentStatus))
 
 export default router

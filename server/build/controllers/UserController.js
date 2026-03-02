@@ -3,6 +3,10 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import Doctor from "../database/models/Doctor.js";
 import Schedule from "../database/models/Schedule.js";
+import generateTimeSlots from "../services/generateTimeSlots.js";
+import Appointment from "../database/models/Appointment.js";
+import { Op } from "sequelize";
+import { AppointmentStatus } from "../globals/types/AppointmentTypes/Appointment.js";
 class UserController {
     static async registerUser(req, res) {
         const { userName, email, password, phoneNumber } = req.body ?? {};
@@ -75,7 +79,13 @@ class UserController {
         const data = await Doctor.findAll({
             where: {
                 isApproved: true
-            }
+            },
+            include: [
+                {
+                    model: User,
+                    attributes: ['id', 'userName', 'email', 'role', 'phoneNumber']
+                }
+            ]
         });
         if (data.length <= 0) {
             res.status(404).json({
@@ -91,16 +101,55 @@ class UserController {
         });
     }
     static async getAllSlots(req, res) {
-        const data = await Schedule.findAll();
-        if (data.length <= 0) {
+        const data = await Schedule.findAll({
+            include: [
+                {
+                    model: Doctor,
+                    attributes: ["id", "avgConsultationTime"]
+                }
+            ]
+        });
+        if (!data.length) {
             res.status(404).json({
-                message: "No schedules found booked by the user !"
+                message: "No schedules found !",
+                data: []
             });
             return;
         }
+        const toMinutes = (t) => {
+            const [h = 0, m = 0] = t.slice(0, 5).split(":").map(Number);
+            return h * 60 + m;
+        };
+        const result = [];
+        for (const s of data) {
+            const item = s.toJSON();
+            const avg = (item.Doctor && item.Doctor.avgConsultationTime) || 0;
+            const generated = avg > 0 ? generateTimeSlots(item.startTime, item.endTime, avg, item.breakStart, item.breakEnd) : [];
+            // fetch appointments for this doctor and date that are not cancelled
+            const booked = await Appointment.findAll({
+                where: {
+                    doctorId: item.doctorId,
+                    date: item.date,
+                    status: { [Op.ne]: AppointmentStatus.CANCELLED }
+                },
+                attributes: ["startTime", "endTime"]
+            });
+            const bookedIntervals = booked.map(b => ({
+                s: toMinutes(b.startTime),
+                e: toMinutes(b.endTime)
+            }));
+            const available = generated.filter(slot => {
+                const [sStr = "00:00", eStr = "00:00"] = slot.split("-");
+                const sMin = toMinutes(sStr);
+                const eMin = toMinutes(eStr);
+                return !bookedIntervals.some(bi => sMin < bi.e && eMin > bi.s);
+            });
+            item.slots = available;
+            result.push(item);
+        }
         res.status(200).json({
             message: "Schedules fetched successfully !",
-            data
+            data: result
         });
     }
 }

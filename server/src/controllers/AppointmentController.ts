@@ -5,6 +5,8 @@ import generateTimeSlots from "../services/generateTimeSlots.js";
 import { Op, UniqueConstraintError } from "sequelize";
 import Appointment from "../database/models/Appointment.js";
 import { AppointmentStatus } from "../globals/types/AppointmentTypes/Appointment.js";
+import updateAppointmentStatus from "../services/updateAppointmentStatusService.js";
+import updateAppointmentStatusService from "../services/updateAppointmentStatusService.js";
 
 interface IAppointMentRequest extends Request{
     user:{
@@ -235,6 +237,27 @@ class AppointmentController {
             data
         })
         return
+    }
+
+    public static async updateAppointmentStatus(req:IAppointMentRequest,res:Response):Promise<void>{
+        const {status} = req.body ?? {}
+        const {id} = req.params // this is appintment id
+        if(!id || !status){
+            res.status(400).json({ message : "Please send appointment Id and status !" })
+            return
+        }
+        const updated = await updateAppointmentStatusService(id as string, status as any)
+
+        if(!updated){
+            res.status(404).json({
+                message: "Failed to update appointment status  !",
+                data: updated
+            })
+            return
+        }
+        res.status(200).json({
+            message : "Appointment status updated successfully !"
+        })
     }
 
 }

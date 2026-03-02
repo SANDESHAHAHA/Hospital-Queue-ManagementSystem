@@ -33,8 +33,7 @@ class AdminController {
                 isApproved: false
             }
         });
-        console.log(data.length);
-        if (data.length <= 0) {
+        if (!data.length) {
             res.status(400).json({
                 message: "No doctors have applied for the post !",
                 data

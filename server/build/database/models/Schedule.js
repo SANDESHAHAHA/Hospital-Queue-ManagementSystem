@@ -34,6 +34,18 @@ __decorate([
         allowNull: false
     })
 ], Schedule.prototype, "endTime", void 0);
+__decorate([
+    Column({
+        type: DataType.TIME,
+        allowNull: true
+    })
+], Schedule.prototype, "breakStart", void 0);
+__decorate([
+    Column({
+        type: DataType.TIME,
+        allowNull: true
+    })
+], Schedule.prototype, "breakEnd", void 0);
 Schedule = __decorate([
     Table({
         tableName: "schedules",

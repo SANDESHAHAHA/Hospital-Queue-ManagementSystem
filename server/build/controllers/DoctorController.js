@@ -2,6 +2,7 @@ import Doctor from "../database/models/Doctor.js";
 import User from "../database/models/User.js";
 import { Op } from "sequelize";
 import Schedule from "../database/models/Schedule.js";
+import generateTimeSlots from "../services/generateTimeSlots.js";
 class DoctorController {
     static async applyForDoctor(req, res) {
         const { specialization, licenseNumber } = req.body ?? {};
@@ -68,13 +69,26 @@ class DoctorController {
             return;
         }
         await doctor.update({ avgConsultationTime });
+        // generate slots for existing/future schedules using the new consultation time
+        const today = new Date().toISOString().split("T")[0];
+        const schedules = await Schedule.findAll({
+            where: {
+                doctorId: doctor.id,
+                date: { [Op.gte]: today }
+            }
+        });
+        const slots = schedules.map(s => ({
+            date: s.date,
+            slots: generateTimeSlots(s.startTime, s.endTime, avgConsultationTime, s.breakStart, s.breakEnd)
+        }));
         res.status(200).json({
             message: "Doctor consultation time set successfully !",
-            data: doctor
+            data: doctor,
+            generatedSlots: slots
         });
     }
     static async setDoctorAvailability(req, res) {
-        const { date, startTime, endTime } = req.body ?? {};
+        const { date, startTime, endTime, breakStart, breakEnd } = req.body ?? {};
         const userId = req.user.id;
         if (!date || !startTime || !endTime) {
             res.status(400).json({
@@ -87,6 +101,17 @@ class DoctorController {
                 message: "startTime must be earlier than endTime !"
             });
             return;
+        }
+        // validate break times if provided
+        if (breakStart && breakEnd) {
+            if (!(breakStart < breakEnd)) {
+                res.status(400).json({ message: "breakStart must be earlier than breakEnd" });
+                return;
+            }
+            if (breakStart <= startTime || breakEnd >= endTime) {
+                res.status(400).json({ message: "Break must be within availability start and end times" });
+                return;
+            }
         }
         //prevent past dates 
         const today = new Date().toISOString().split("T")[0];
@@ -145,7 +170,9 @@ class DoctorController {
             doctorId: doctor.id,
             date,
             startTime,
-            endTime
+            endTime,
+            breakStart: breakStart || null,
+            breakEnd: breakEnd || null
         });
         res.status(201).json({
             message: "Doctor availability created successfully !",

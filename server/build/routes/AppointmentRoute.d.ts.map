@@ -1,1 +1,1 @@
-{"version":3,"file":"AppointmentRoute.d.ts","sourceRoot":"","sources":["../../src/routes/AppointmentRoute.ts"],"names":[],"mappings":"AAAA,OAAe,EAAC,MAAM,EAAsB,MAAM,SAAS,CAAA;AAM3D,QAAA,MAAM,MAAM,EAAC,MAAyB,CAAA;AAKtC,eAAe,MAAM,CAAA"}
+{"version":3,"file":"AppointmentRoute.d.ts","sourceRoot":"","sources":["../../src/routes/AppointmentRoute.ts"],"names":[],"mappings":"AAAA,OAAe,EAAC,MAAM,EAAsB,MAAM,SAAS,CAAA;AAM3D,QAAA,MAAM,MAAM,EAAC,MAAyB,CAAA;AAQtC,eAAe,MAAM,CAAA"}
