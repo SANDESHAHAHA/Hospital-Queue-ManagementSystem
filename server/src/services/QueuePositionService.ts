@@ -34,3 +34,29 @@ const updateQueuePositionService =async(doctorId:string,date:string) =>{
 }
 
 export default updateQueuePositionService
+
+export const resequenceQueuePositions = async (doctorId: string, date: string) => {
+    const appointments = await Appointment.findAll({
+        where: {
+            doctorId,
+            date,
+            status: {
+                [Op.in]: [AppointmentStatus.CHECKED_IN, AppointmentStatus.IN_PROGRESS]
+            }
+        },
+        order: [['checkInTime', 'ASC']]
+    })
+
+    for (let i = 0; i < appointments.length; i++) {
+        const appt = appointments[i]
+        const desiredPosition = i + 1
+        if (!appt) continue
+        try {
+            await appt.update({ queuePosition: desiredPosition })
+        } catch (err) {
+            // ignore individual update failures, but continue
+        }
+    }
+
+    return appointments.length
+}
