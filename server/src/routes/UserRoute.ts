@@ -14,5 +14,5 @@ router.route("/doctors").get(AuthMiddleware.isLoggedIn as unknown as RequestHand
 router.route("/slots").get(AuthMiddleware.isLoggedIn as unknown as RequestHandler,errorHandler(UserController.getAllSlots))
 router.route("/users").get(AuthMiddleware.isLoggedIn as unknown as RequestHandler,AuthMiddleware.restrictTo(Role.Admin) as unknown as RequestHandler,errorHandler(UserController.getAllUsers))
 router.route("/verifyOTP").post(errorHandler(UserController.verifyOTP))
-
+router.route("/reset-password").post(errorHandler(UserController.resetPassword))
 export default router
