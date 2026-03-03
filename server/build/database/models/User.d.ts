@@ -6,6 +6,7 @@ declare class User extends Model {
     password: string;
     role: 'patient' | 'admin' | 'doctor';
     phoneNumber: string;
+    imageUrl: string;
     OTP: string;
     OTPgeneratedTime: string;
 }

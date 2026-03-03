@@ -57,6 +57,12 @@ class User extends Model{
 
     @Column({
         type:DataType.STRING,
+        unique:true
+    })
+    declare imageUrl : string
+    
+    @Column({
+        type:DataType.STRING,
     })
     declare OTP : string
 
@@ -64,6 +70,8 @@ class User extends Model{
         type:DataType.STRING,
     })
     declare OTPgeneratedTime : string
+
+
 }
 
 export default User

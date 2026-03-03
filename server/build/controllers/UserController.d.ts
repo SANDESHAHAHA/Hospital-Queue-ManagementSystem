@@ -1,12 +1,13 @@
 import type { Request, Response } from "express";
 interface IRequestUser extends Request {
+    file?: Express.Multer.File;
     user?: {
         id: string;
         email: string;
     };
 }
 declare class UserController {
-    static registerUser(req: Request, res: Response): Promise<void>;
+    static registerUser(req: IRequestUser, res: Response): Promise<void>;
     static loginUser(req: Request, res: Response): Promise<void>;
     static getAllUsers(req: Request, res: Response): Promise<void>;
     static verifyOTP(req: IRequestUser, res: Response): Promise<void>;

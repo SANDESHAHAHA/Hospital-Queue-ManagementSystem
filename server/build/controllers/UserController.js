@@ -13,6 +13,10 @@ import otpHtml from "../utils/htmlBodies/otpHtml.js";
 import RegisterUserHtml from "../utils/htmlBodies/RegisterUserhtml.js";
 import checkOTPexpirationTime from "../services/checkOTPexiparationTime.js";
 import { Role } from "../globals/types/Role.js";
+import APIResponse from "../utils/APIResponses/ApiResponse.js";
+import fs from 'fs';
+import path from 'path';
+import uploadOnCloudinary from "../services/cloudinaryConfig.js";
 class UserController {
     static async registerUser(req, res) {
         const { userName, email, password, phoneNumber } = req.body ?? {};
@@ -22,11 +26,25 @@ class UserController {
             });
             return;
         }
+        if (!req.file) {
+            APIResponse(res, 400, "Profile Avatar is required !");
+            return;
+        }
+        const filePath = path.join('./uploads', req.file.filename);
+        const cloudiaryResponse = await uploadOnCloudinary(filePath);
+        let fileName;
+        if (cloudiaryResponse && cloudiaryResponse.secure_url) {
+            fileName = cloudiaryResponse.secure_url;
+        }
+        if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+        }
         await User.create({
             userName,
             email,
             password: bcrypt.hashSync(password, 10),
             phoneNumber,
+            imageUrl: fileName
         });
         try {
             await sendMail({
@@ -42,6 +60,7 @@ class UserController {
         res.status(200).json({
             message: "User registerd successfully !"
         });
+        APIResponse(res, 201, "User Registerd Successfully !", fileName);
         return;
     }
     static async loginUser(req, res) {

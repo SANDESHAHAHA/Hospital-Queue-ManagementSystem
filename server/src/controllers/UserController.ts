@@ -14,15 +14,20 @@ import otpHtml from "../utils/htmlBodies/otpHtml.js";
 import RegisterUserHtml from "../utils/htmlBodies/RegisterUserhtml.js";
 import checkOTPexpirationTime from "../services/checkOTPexiparationTime.js";
 import { Role } from "../globals/types/Role.js";
+import APIResponse from "../utils/APIResponses/ApiResponse.js";
+import fs from 'fs'
+import path from 'path'
+import uploadOnCloudinary from "../services/cloudinaryConfig.js";
 
 interface IRequestUser extends Request{
+    file?:Express.Multer.File,
     user?:{
         id:string,
         email:string
     }
 }
 class UserController{
-    public static async registerUser(req:Request,res:Response):Promise<void>{
+    public static async registerUser(req:IRequestUser,res:Response):Promise<void>{
 
         const {userName,email,password,phoneNumber} = req.body ?? {}
         if(!userName || !email || !password || !phoneNumber){
@@ -33,11 +38,28 @@ class UserController{
             return
         }
 
+        if(!req.file){
+            APIResponse(res,400,"Profile Avatar is required !")
+            return
+        }
+
+        const filePath = path.join('./uploads',req.file.filename)
+        const cloudiaryResponse = await uploadOnCloudinary(filePath)
+        let fileName
+        if(cloudiaryResponse && cloudiaryResponse.secure_url){
+         fileName = cloudiaryResponse.secure_url
+        }
+
+        if(fs.existsSync(filePath)){
+            fs.unlinkSync(filePath)
+        }
+
         await User.create({
             userName,
             email,
             password:bcrypt.hashSync(password,10),
             phoneNumber,
+            imageUrl : fileName
 
         })
         try {
@@ -50,9 +72,8 @@ class UserController{
             // log error, but don't fail registration
             console.error('sendMail error:', error)
         }
-        res.status(200).json({
-            message:"User registerd successfully !"
-        })
+
+        APIResponse(res,201,"User Registerd Successfully !",fileName)
         return
 
     }

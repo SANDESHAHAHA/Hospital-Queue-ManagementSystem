@@ -1,0 +1,32 @@
+import {v2 as cloudinary} from 'cloudinary'
+import fs from 'fs'
+import * as dotenv from 'dotenv'
+dotenv.config()
+
+cloudinary.config({
+    cloud_name:process.env.CLOUDINARY_CLOUD_NAME!,
+    api_key:process.env.CLOUDINARY_API_KEY!,
+    api_secret:process.env.CLOUDINARY_SECRET_KEY!
+})
+
+const uploadOnCloudinary = async(localFilePath:string)=>{
+    try {
+        if(!localFilePath){
+            return null
+        }
+        const response = await cloudinary.uploader.upload(localFilePath,{
+            resource_type:'image'
+        })
+        return response
+    } catch (error) {
+        console.log('Error uploading to cloudinary ',error)
+        if(fs.existsSync(localFilePath)){
+            fs.unlinkSync(localFilePath)
+            return null
+        }
+        return null
+    }
+    
+}
+
+export default uploadOnCloudinary
