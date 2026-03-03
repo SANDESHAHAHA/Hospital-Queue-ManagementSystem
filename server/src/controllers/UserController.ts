@@ -12,7 +12,15 @@ import sendMail from "../services/sendMail.js";
 import generateOtp from "../services/GenerateOtp.js";
 import otpHtml from "../utils/htmlBodies/otpHtml.js";
 import RegisterUserHtml from "../utils/htmlBodies/RegisterUserhtml.js";
+import checkOTPexpirationTime from "../services/checkOTPexiparationTime.js";
+import { Role } from "../globals/types/Role.js";
 
+interface IRequestUser extends Request{
+    user?:{
+        id:string,
+        email:string
+    }
+}
 class UserController{
     public static async registerUser(req:Request,res:Response):Promise<void>{
 
@@ -74,10 +82,20 @@ class UserController{
             })
             return
         }
-        
-        const token = jwt.sign({userId:data.id},process.env.JWT_SECRET as string,{
-            expiresIn:"1d"
-        })
+        // if user is admin, bypass OTP and issue token immediately
+        if ((data as any).role === Role.Admin) {
+            const token = jwt.sign({ userId: data.id }, process.env.JWT_SECRET as string, {
+                expiresIn: "1d"
+            })
+            // optional: clear any existing OTP fields for admin
+            try { await data.update({ OTP: null, OTPgeneratedTime: null }) } catch {}
+            res.status(200).json({
+                message: "Admin logged in successfully !",
+                token,
+                expiresIn: "1d"
+            })
+            return
+        }
 
         const otp = generateOtp()
 
@@ -87,9 +105,13 @@ class UserController{
             html:otpHtml(otp)
         })
 
+        // store the otp to the database 
+        const OTPcreatedTime = Date.now().toString()
+        await data.update({OTP:otp,OTPgeneratedTime:OTPcreatedTime})
+
+        // ask non-admin user to submit otp to complete login
         res.status(200).json({
-            message:"User logged in successfully !",
-            data:token
+            message:"User can now enter otp for further to login !",    
         })
     }
     public static async getAllUsers(req:Request,res:Response):Promise<void>{
@@ -106,6 +128,69 @@ class UserController{
             })
             return
     }
+    public static async verifyOTP(req:IRequestUser,res:Response):Promise<void>{
+        const { email, otp } = req.body ?? {}
+        const userEmail = email ?? req.user?.email
+        if(!userEmail){
+            res.status(400).json({
+                message : "Email is required to further process for login !"
+            })
+            return
+        }
+        if(!otp){
+            res.status(400).json({
+                message : "Please provide otp to process for login !"
+            })
+            return
+        }
+        // check if the user exists 
+        const data = await User.findOne({
+            where:{
+                email: userEmail
+            }
+        })
+
+        if(!data){
+            res.status(404).json({
+                message : "No user with given email found !"
+            })
+            return
+        }
+
+        //check if the user otp valids the given otp 
+        const checkedOTP = await User.findOne({
+            where:{
+                email: userEmail,
+                OTP: otp
+            }
+        })
+        if(!checkedOTP){
+            res.status(404).json({
+                message : "Invalid otp sent !"
+            })
+            return
+        }
+        // if otp matched check otp expiration time
+        const otpgeneratedTime = checkedOTP.OTPgeneratedTime
+        const isOtpValid = checkOTPexpirationTime(otpgeneratedTime, 120000) // 120000 ms = 2 minutes
+        if(!isOtpValid){
+            res.status(403).json({
+                message : "You are forbidden to proceed as OTP has expired !"
+            })
+            return
+        }
+
+        const token = jwt.sign({userId:data.id},process.env.JWT_SECRET as string,{
+            expiresIn:"1d"
+        })
+
+        res.status(200).json({
+            message:"User logged in successfully !",
+            token,
+            expiresIn: "1d"
+        })
+    }
+
     public static async getAllDoctors(req:Request,res:Response):Promise<void>{
 
         const data = await Doctor.findAll({
