@@ -191,6 +191,42 @@ class UserController{
         })
     }
 
+ public static async resetPassword(req:Request,res:Response):Promise<void>{
+        const {email,newPassword,confirmPassword} = req.body ?? {}
+        if(!email || !newPassword || !confirmPassword){
+            res.status(400).json({
+                message:"Please provide email,newPassword,confirmPassword,email"
+            })
+            return
+        }
+        if(newPassword !== confirmPassword){
+            res.status(400).json({
+                message:"new password and confirm password should be same ! "
+            })
+            return
+        }
+        // if the passwords are matched then ? 
+        const user = await User.findOne({
+            where:{
+                email
+            }
+        })
+        if(!user){
+             res.status(404).json({
+                message:"No user with email exists"
+            })
+            return
+        }
+        //if there is user
+        user.password = bcrypt.hashSync(newPassword,8)
+        await user.save()
+
+        res.status(200).json({
+            message:"user password updated successfully"
+        })
+        return
+    }
+
     public static async getAllDoctors(req:Request,res:Response):Promise<void>{
 
         const data = await Doctor.findAll({
