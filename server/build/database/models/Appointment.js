@@ -5,7 +5,6 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 import { Model, Table, Column, DataType } from 'sequelize-typescript';
-import { Col } from 'sequelize/lib/utils';
 let Appointment = 
 // if tow requests hits the server by the user at the same time the database enforcess uniquness that is for doctor x at date y and at time z two patients shold not book the same appointment
 // doctor id as foreign key here kun doctor sanga related appointment ho 
