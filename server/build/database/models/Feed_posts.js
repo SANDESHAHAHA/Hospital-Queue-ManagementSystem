@@ -5,6 +5,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 import { Model, DataType, Table, Column, } from 'sequelize-typescript';
+import { Col } from 'sequelize/lib/utils';
 let FeedPost = class FeedPost extends Model {
 };
 __decorate([
@@ -38,6 +39,12 @@ __decorate([
         defaultValue: false
     })
 ], FeedPost.prototype, "isAnswered", void 0);
+__decorate([
+    Column({
+        type: DataType.STRING,
+        defaultValue: null
+    })
+], FeedPost.prototype, "imageUrl", void 0);
 FeedPost = __decorate([
     Table({
         tableName: 'feed_posts',

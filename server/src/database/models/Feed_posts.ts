@@ -4,6 +4,7 @@ import {
     Table,
     Column,
 } from 'sequelize-typescript'
+import { Col } from 'sequelize/lib/utils'
 
 @Table({
     tableName:'feed_posts',
@@ -42,6 +43,12 @@ class FeedPost extends Model{
         defaultValue : false
     })
     declare isAnswered : boolean
+
+    @Column({
+        type:DataType.STRING,
+        defaultValue:null
+    })
+    declare imageUrl : string
 }
 
 export default FeedPost

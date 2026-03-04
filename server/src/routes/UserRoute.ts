@@ -18,6 +18,6 @@ router.route("/slots").get(AuthMiddleware.isLoggedIn as unknown as RequestHandle
 router.route("/users").get(AuthMiddleware.isLoggedIn as unknown as RequestHandler,AuthMiddleware.restrictTo(Role.Admin) as unknown as RequestHandler,errorHandler(UserController.getAllUsers))
 router.route("/verifyOTP").post(errorHandler(UserController.verifyOTP))
 router.route("/reset-password").post(errorHandler(UserController.resetPassword))
-router.route("/createQuestion").post(AuthMiddleware.isLoggedIn as unknown as RequestHandler,AuthMiddleware.restrictTo(Role.Admin,Role.Patient) as unknown as RequestHandler,errorHandler(QuestionController.createQuestion))
+router.route("/createQuestion").post(AuthMiddleware.isLoggedIn as unknown as RequestHandler,AuthMiddleware.restrictTo(Role.Admin,Role.Patient) as unknown as RequestHandler,upload.single('image'),errorHandler(QuestionController.createQuestion))
 
 export default router

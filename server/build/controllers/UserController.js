@@ -57,9 +57,6 @@ class UserController {
             // log error, but don't fail registration
             console.error('sendMail error:', error);
         }
-        res.status(200).json({
-            message: "User registerd successfully !"
-        });
         APIResponse(res, 201, "User Registerd Successfully !", fileName);
         return;
     }

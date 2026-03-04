@@ -1,10 +1,11 @@
 import type { Response } from "express";
 
 
-const APIResponse = (res:Response,statusCode:number,message:string,data:any=[])=>{
+const APIResponse = (res:Response, statusCode:number, message:string, data:any = null) => {
+    const hasData = data !== undefined && data !== null
     res.status(statusCode).json({
         message,
-        data: data.length > 0 ? data : null
+        data: hasData ? data : null
     })
 }
 

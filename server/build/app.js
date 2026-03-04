@@ -14,7 +14,5 @@ app.use("", appointMentRoute);
 app.use("", userRoute);
 app.use("", doctorRoute);
 app.use("", adminRoute);
-app.listen(process.env.PORT, () => {
-    console.log("Project has been started at port no ", process.env.PORT);
-});
+export default app;
 //# sourceMappingURL=app.js.map
