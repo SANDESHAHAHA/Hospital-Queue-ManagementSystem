@@ -25,22 +25,14 @@ function startServer() {
         const token = socket.handshake?.auth?.token || socket.handshake?.headers?.token;
         if (token) {
             try {
-                jwt.verify(token, process.env.JWT_SECRET, async (err, result) => {
-                    if (err) {
-                        console.log("JWT verify error for socket", socket.id, err);
-                        socket.emit("authError", err);
-                    }
-                    else {
-                        console.log("JWT decoded for socket", socket.id, result);
-                        const userData = await User.findByPk(result.userId);
-                        if (!userData) {
-                            socket.emit("authError", "No user found with that token");
-                            return;
-                        }
-                        addToOnlineUsers(socket.id, result.userId, userData.role);
-                        console.log("OnlineUsers updated:", OnlineUsers);
-                    }
-                });
+                const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                const userData = await User.findByPk(decoded.userId);
+                if (!userData) {
+                    socket.emit("authError", "No user found with that token !");
+                    return;
+                }
+                addToOnlineUsers(socket.id, decoded.userId, userData.role);
+                console.log("Online users updated:", OnlineUsers);
             }
             catch (error) {
                 console.log("Database error", error);
@@ -51,14 +43,6 @@ function startServer() {
             console.log("No token provided for socket", socket.id);
             socket.emit("authError", "Token is required !");
         }
-        socket.on("create-question", async (data) => {
-            try {
-                io.emit("feed-post", data);
-            }
-            catch (error) {
-                console.log("Couldnot broadcast the message !");
-            }
-        });
     });
 }
 startServer();

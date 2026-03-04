@@ -19,5 +19,7 @@ router.route("/users").get(AuthMiddleware.isLoggedIn as unknown as RequestHandle
 router.route("/verifyOTP").post(errorHandler(UserController.verifyOTP))
 router.route("/reset-password").post(errorHandler(UserController.resetPassword))
 router.route("/createQuestion").post(AuthMiddleware.isLoggedIn as unknown as RequestHandler,AuthMiddleware.restrictTo(Role.Admin,Role.Patient) as unknown as RequestHandler,upload.single('image'),errorHandler(QuestionController.createQuestion))
+router.route("/getAllQuestions").get(AuthMiddleware.isLoggedIn as unknown as RequestHandler,AuthMiddleware.restrictTo(Role.Doctor,Role.Admin,Role.Patient) as unknown as RequestHandler,errorHandler(QuestionController.getAllQuestions))
+router.route("/voteQuestion/:id").post(AuthMiddleware.isLoggedIn as unknown as RequestHandler,AuthMiddleware.restrictTo(Role.Admin,Role.Patient,Role.Doctor) as unknown as RequestHandler,errorHandler(QuestionController.questionVote))
 
-export default router
+export default router 

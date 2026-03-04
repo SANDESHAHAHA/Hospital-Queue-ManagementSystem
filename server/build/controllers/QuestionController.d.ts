@@ -9,6 +9,8 @@ interface IQuestionRequest extends Request {
 }
 declare class QuestionController {
     static createQuestion(req: IQuestionRequest, res: Response): Promise<void>;
+    static getAllQuestions(req: IQuestionRequest, res: Response): Promise<void>;
+    static questionVote(req: IQuestionRequest, res: Response): Promise<void>;
 }
 export default QuestionController;
 //# sourceMappingURL=QuestionController.d.ts.map

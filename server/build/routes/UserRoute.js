@@ -14,6 +14,8 @@ router.route("/slots").get(AuthMiddleware.isLoggedIn, errorHandler(UserControlle
 router.route("/users").get(AuthMiddleware.isLoggedIn, AuthMiddleware.restrictTo(Role.Admin), errorHandler(UserController.getAllUsers));
 router.route("/verifyOTP").post(errorHandler(UserController.verifyOTP));
 router.route("/reset-password").post(errorHandler(UserController.resetPassword));
-router.route("/createQuestion").post(AuthMiddleware.isLoggedIn, AuthMiddleware.restrictTo(Role.Admin, Role.Patient), errorHandler(QuestionController.createQuestion));
+router.route("/createQuestion").post(AuthMiddleware.isLoggedIn, AuthMiddleware.restrictTo(Role.Admin, Role.Patient), upload.single('image'), errorHandler(QuestionController.createQuestion));
+router.route("/getAllQuestions").get(AuthMiddleware.isLoggedIn, AuthMiddleware.restrictTo(Role.Doctor, Role.Admin, Role.Patient), errorHandler(QuestionController.getAllQuestions));
+router.route("/voteQuestion/:id").post(AuthMiddleware.isLoggedIn, AuthMiddleware.restrictTo(Role.Admin, Role.Patient, Role.Doctor), errorHandler(QuestionController.questionVote));
 export default router;
 //# sourceMappingURL=UserRoute.js.map

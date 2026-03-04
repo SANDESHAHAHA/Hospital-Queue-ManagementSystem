@@ -8,12 +8,12 @@ import {
 import { VoteType } from '../../globals/types/VoteTypes/voteTypes.js'
 
 @Table({
-    tableName:'votes',
-    modelName:'Vote',
+    tableName:'commentvotes',
+    modelName:'CommentVote',
     timestamps:true
 })
 
-class Vote extends Model{
+class CommentVote extends Model{
     @Column({
         primaryKey:true,
         type : DataType.UUID,
@@ -28,4 +28,4 @@ class Vote extends Model{
     declare type : VoteType
 }
 
-export default Vote
+export default CommentVote

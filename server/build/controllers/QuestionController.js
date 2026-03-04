@@ -3,11 +3,14 @@ import fs from 'fs';
 import path from 'path';
 import uploadOnCloudinary from "../services/cloudinaryConfig.js";
 import FeedPost from "../database/models/Feed_posts.js";
+import { VoteType } from "../globals/types/VoteTypes/voteTypes.js";
+import User from "../database/models/User.js";
+import FeedVote from "../database/models/FeedVote.js";
 class QuestionController {
     static async createQuestion(req, res) {
         const { title, description, category, tags } = req.body ?? {};
         if (!title || !description || !category || !tags) {
-            APIResponse(res, 404, "Title,description and category are required !");
+            APIResponse(res, 404, "Title,description,tags and category are required !");
             return;
         }
         let fileName;
@@ -29,17 +32,63 @@ class QuestionController {
             imageUrl: fileName ? fileName : null,
             userId: req.user.id
         });
-        // emit the new question to all connected websocket clients (if io is available)
+        const payload = data && typeof data.toJSON === 'function' ? data.toJSON() : data;
         try {
             const io = req.app.get('io');
             if (io) {
-                io.emit('new-question', data);
+                io.emit('new-question', payload);
             }
         }
         catch (e) {
             console.error('Error emitting new-question', e);
         }
-        APIResponse(res, 200, "Feed created successfully !", data);
+        APIResponse(res, 200, "Question created successfully !", payload);
+    }
+    static async getAllQuestions(req, res) {
+        const data = await FeedPost.findAll();
+        if (!data.length) {
+            APIResponse(res, 404, "No feeds available !");
+            return;
+        }
+        APIResponse(res, 200, "Questions fetched successfully !", data);
+    }
+    static async questionVote(req, res) {
+        const { id } = req.params;
+        const { type } = req.body ?? {};
+        const userId = req.user.id;
+        if (!id) {
+            APIResponse(res, 400, "Please send id of the post !");
+            return;
+        }
+        if (!userId) {
+            APIResponse(res, 403, "Unauthorized access !");
+            return;
+        }
+        if (!Object.values(VoteType).includes(type)) {
+            APIResponse(res, 400, "Please send valid like type !");
+        }
+        const question = await FeedPost.findByPk(id);
+        if (!question) {
+            APIResponse(res, 404, "No feed post of that id found !");
+            return;
+        }
+        const user = await User.findByPk(userId);
+        if (!user) {
+            APIResponse(res, 404, "No user of that id found !");
+            return;
+        }
+        const data = FeedVote.create({
+            type,
+            userId,
+            feedId: id
+        });
+        console.log("votedata", data);
+        const io = req.app.get('io');
+        if (io) {
+            io.emit("feed-likes", data);
+        }
+        APIResponse(res, 200, "Voted successfully !", data);
+        return;
     }
 }
 export default QuestionController;

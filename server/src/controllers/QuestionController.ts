@@ -1,9 +1,13 @@
 import type { Request,Response } from "express";
 import APIResponse from "../utils/APIResponses/ApiResponse.js";
+import { validate as isUUID, version as uuidVersion } from 'uuid'
 import fs from 'fs'
 import path from 'path'
 import uploadOnCloudinary from "../services/cloudinaryConfig.js";
 import FeedPost from "../database/models/Feed_posts.js";
+import { VoteType } from "../globals/types/VoteTypes/voteTypes.js";
+import User from "../database/models/User.js";
+import FeedVote from "../database/models/FeedVote.js";
 interface IQuestionRequest extends Request{
     file:Express.Multer.File,
     user:{
@@ -12,6 +16,11 @@ interface IQuestionRequest extends Request{
         role:string
     }
 }
+class ExtendedFeedVote extends FeedVote{
+    declare feedId:string
+    declare userId:string
+}
+
 class QuestionController{
     public static async createQuestion(req:IQuestionRequest,res:Response):Promise<void>{
         const {title,description,category,tags} = req.body ?? {}
@@ -42,10 +51,9 @@ class QuestionController{
             imageUrl:fileName ? fileName : null,
             userId:req.user.id
         })
-        // convert Sequelize instance to plain object for logging/emit/response
+
         const payload = data && typeof data.toJSON === 'function' ? data.toJSON() : data
-        console.log("data", payload)
-        // emit the new question to all connected websocket clients (if io is available)
+        
         try{
             const io = (req.app as any).get('io')
             if(io){
@@ -57,6 +65,74 @@ class QuestionController{
         
         APIResponse(res,200,"Question created successfully !",payload)
    
+    }
+
+    public static async getAllQuestions(req:IQuestionRequest,res:Response):Promise<void>{
+    
+        const data = await FeedPost.findAll()
+        if(!data.length){
+            APIResponse(res,404,"No feeds available !")
+            return
+        }
+        APIResponse(res,200,"Questions fetched successfully !",data)
+        return
+    }
+
+    public static async questionVote(req:IQuestionRequest,res:Response):Promise<void>{
+        const {id} = req.params
+        const {type} = req.body ?? {}
+        const userId = req.user.id
+        if(!id){
+            APIResponse(res,400,"Please send id of the post !")
+            return
+        }
+        if(!type){
+            APIResponse(res,400,"Please send type !")
+            return
+        }
+        if(!userId){
+            APIResponse(res,403,"Unauthorized access !")
+            return
+        }
+        if(!Object.values(VoteType).includes(type)){
+            APIResponse(res,400,"Please send valid like type !")
+            return
+        }
+        if(!isUUID(id) || uuidVersion(id as string) !== 4){
+            APIResponse(res,400,"Invalid id format. UUID v4 expected.")
+            return
+        }
+        const question = await FeedPost.findByPk(id as string)
+        if(!question){
+            APIResponse(res,404,"No feed post of that id found !")
+            return
+        }
+        const user = await User.findByPk(userId)
+        if(!user){
+            APIResponse(res,404,"No user of that id found !")
+            return
+        }
+        const data = await FeedVote.create({
+            type,
+            userId,
+            feedId:id
+        })
+        const extendedfeedvote:ExtendedFeedVote = data as ExtendedFeedVote
+
+        const payload = {
+            id:data.id,
+            type:data.type,
+            userId:extendedfeedvote.userId,
+            feedId:extendedfeedvote.feedId
+        }
+        // console.log("votedata",payload)
+        const io = req.app.get('io')
+
+        if(io){ 
+            io.emit("feed-likes",payload)
+        }
+        APIResponse(res,200,"Voted successfully !",payload)
+        return
     }
 
 }

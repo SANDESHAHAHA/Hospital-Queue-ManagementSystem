@@ -1,7 +1,8 @@
-const APIResponse = (res, statusCode, message, data = []) => {
+const APIResponse = (res, statusCode, message, data = null) => {
+    const hasData = data !== undefined && data !== null;
     res.status(statusCode).json({
         message,
-        data: data.length > 0 ? data : null
+        data: hasData ? data : null
     });
 };
 export default APIResponse;

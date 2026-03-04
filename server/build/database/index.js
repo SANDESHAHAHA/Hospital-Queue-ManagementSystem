@@ -4,10 +4,11 @@ import Doctor from "./models/Doctor.js";
 import Appointment from "./models/Appointment.js";
 import Schedule from "./models/Schedule.js";
 import FeedPost from "./models/Feed_posts.js";
-import Vote from "./models/VoteModel.js";
+import Vote from "./models/FeedVote.js";
 import Comment from "./models/CommentModel.js";
+import CommentVote from "./models/CommentVote.js";
 const sequelize = new Sequelize(process.env.CONNECTION_STRING, {
-    models: [User, Doctor, Appointment, Schedule, FeedPost, Vote, Comment]
+    models: [User, Doctor, Appointment, Schedule, FeedPost, Vote, Comment, CommentVote]
 });
 //model relations
 User.hasMany(Doctor, { foreignKey: "userId" });
@@ -20,16 +21,20 @@ User.hasOne(Appointment, { foreignKey: "patientId" });
 Appointment.belongsTo(User, { foreignKey: "patientId" });
 User.hasMany(FeedPost, { foreignKey: 'userId' });
 FeedPost.belongsTo(User, { foreignKey: 'userId' });
-User.hasMany(Comment, { foreignKey: 'commentId' });
-Comment.belongsTo(User, { foreignKey: 'commentId' });
+User.hasMany(Comment, { foreignKey: 'userId' });
+Comment.belongsTo(User, { foreignKey: 'userId' });
 FeedPost.hasMany(Comment, { foreignKey: 'feedId' });
 Comment.belongsTo(FeedPost, { foreignKey: 'feedId' });
-User.hasOne(Vote, { foreignKey: 'userId' });
+User.hasMany(Vote, { foreignKey: 'userId' });
 Vote.belongsTo(User, { foreignKey: 'userId' });
 FeedPost.hasMany(Vote, { foreignKey: "feedId" });
 Vote.belongsTo(FeedPost, { foreignKey: 'feedId' });
-Comment.hasMany(Vote, { foreignKey: 'commentId' });
-Vote.belongsTo(Comment, { foreignKey: 'commentId' });
+Comment.hasMany(CommentVote, { foreignKey: "commentId" });
+CommentVote.belongsTo(Comment, { foreignKey: "commentId" });
+User.hasMany(CommentVote, { foreignKey: "userId" });
+CommentVote.belongsTo(User, { foreignKey: "userId" });
+FeedPost.hasMany(CommentVote, { foreignKey: "feedId" });
+CommentVote.belongsTo(FeedPost, { foreignKey: "feedId" });
 try {
     await sequelize.authenticate();
     console.log("database connected successfully !");

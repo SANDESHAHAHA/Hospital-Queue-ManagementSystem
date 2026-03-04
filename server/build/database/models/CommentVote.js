@@ -6,7 +6,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 import { Table, Model, Column, DataType, } from 'sequelize-typescript';
 import { VoteType } from '../../globals/types/VoteTypes/voteTypes.js';
-let Vote = class Vote extends Model {
+let CommentVote = class CommentVote extends Model {
 };
 __decorate([
     Column({
@@ -14,19 +14,19 @@ __decorate([
         type: DataType.UUID,
         defaultValue: DataType.UUIDV4
     })
-], Vote.prototype, "id", void 0);
+], CommentVote.prototype, "id", void 0);
 __decorate([
     Column({
         type: DataType.ENUM(...Object.values(VoteType)),
         allowNull: false
     })
-], Vote.prototype, "type", void 0);
-Vote = __decorate([
+], CommentVote.prototype, "type", void 0);
+CommentVote = __decorate([
     Table({
-        tableName: 'votes',
-        modelName: 'Vote',
+        tableName: 'commentvotes',
+        modelName: 'CommentVote',
         timestamps: true
     })
-], Vote);
-export default Vote;
-//# sourceMappingURL=VoteModel.js.map
+], CommentVote);
+export default CommentVote;
+//# sourceMappingURL=CommentVote.js.map
