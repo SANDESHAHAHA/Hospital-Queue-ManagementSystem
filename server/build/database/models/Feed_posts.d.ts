@@ -4,6 +4,7 @@ declare class FeedPost extends Model {
     title: string;
     description: string;
     category: string;
+    tag: string;
     isAnswered: boolean;
     imageUrl: string;
 }

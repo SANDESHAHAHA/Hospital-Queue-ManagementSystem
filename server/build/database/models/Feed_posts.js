@@ -35,6 +35,12 @@ __decorate([
 ], FeedPost.prototype, "category", void 0);
 __decorate([
     Column({
+        type: DataType.STRING,
+        allowNull: false
+    })
+], FeedPost.prototype, "tag", void 0);
+__decorate([
+    Column({
         type: DataType.BOOLEAN,
         defaultValue: false
     })
