@@ -230,6 +230,12 @@ class QuestionController{
                 id
             }
         })
+
+        const io = req.app.get('io')
+        if(io){
+            io.emit("question-updated",updatedQuestion)
+        }
+        
         APIResponse(res,200,"Question updated successfully !",updatedQuestion)
         return
     }
@@ -265,7 +271,7 @@ class QuestionController{
         APIResponse(res,200,"Question deleted successfully !")
         return
     }
-    
+
 }
     
 export default QuestionController
