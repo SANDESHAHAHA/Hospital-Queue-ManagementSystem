@@ -39,6 +39,12 @@ class FeedPost extends Model{
     declare category:string
 
     @Column({
+        type:DataType.STRING,
+        allowNull:false
+    })
+    declare tag:string
+
+    @Column({
         type : DataType.BOOLEAN,
         defaultValue : false
     })
