@@ -4,6 +4,7 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 await import('./database/index.js');
+import './services/CronJobScheduler.js';
 import adminSeeder from './services/adminSeeder.js';
 adminSeeder();
 import userRoute from './routes/UserRoute.js';

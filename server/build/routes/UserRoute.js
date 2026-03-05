@@ -4,6 +4,7 @@ import errorHandler from "../globals/errorHandler/ErrorHandler.js";
 import AuthMiddleware from "../middleware/AuthMiddleware.js";
 import { Role } from "../globals/types/Role.js";
 import QuestionController from "../controllers/QuestionController.js";
+import CommentController from "../controllers/CommentController.js";
 import { multer, storage } from "../middleware/multerConfig.js";
 const upload = multer({ storage: storage });
 const router = express.Router();
@@ -18,5 +19,11 @@ router.route("/createQuestion").post(AuthMiddleware.isLoggedIn, AuthMiddleware.r
 router.route("/getAllQuestions").get(AuthMiddleware.isLoggedIn, AuthMiddleware.restrictTo(Role.Doctor, Role.Admin, Role.Patient), errorHandler(QuestionController.getAllQuestions));
 router.route("/voteQuestion/:id").post(AuthMiddleware.isLoggedIn, AuthMiddleware.restrictTo(Role.Admin, Role.Patient, Role.Doctor), errorHandler(QuestionController.questionVote));
 router.route("/removeQuestionVote/:id").post(AuthMiddleware.isLoggedIn, AuthMiddleware.restrictTo(Role.Admin, Role.Doctor, Role.Patient), errorHandler(QuestionController.removeQuestionVote));
+router.route("/createComment/:questionId").post(AuthMiddleware.isLoggedIn, AuthMiddleware.restrictTo(Role.Admin, Role.Patient, Role.Doctor), errorHandler(CommentController.createComment));
+router.route("/getComments/:questionId").get(AuthMiddleware.isLoggedIn, AuthMiddleware.restrictTo(Role.Admin, Role.Doctor, Role.Patient), errorHandler(CommentController.getCommentByQuestion));
+router.route("/updateComment/:commentId").patch(AuthMiddleware.isLoggedIn, errorHandler(CommentController.updateComment));
+router.route("/deleteComment/:commentId").delete(AuthMiddleware.isLoggedIn, errorHandler(CommentController.deleteComment));
+router.route("/commentVote/:commentId").post(AuthMiddleware.isLoggedIn, errorHandler(CommentController.commentVote));
+router.route("/removeCommentVote/:commentId").post(AuthMiddleware.isLoggedIn, errorHandler(CommentController.removeCommentVote));
 export default router;
 //# sourceMappingURL=UserRoute.js.map

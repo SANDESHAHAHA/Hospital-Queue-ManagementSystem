@@ -42,6 +42,16 @@ class UserController{
             APIResponse(res,400,"Profile Avatar is required !")
             return
         }
+        const foundEmail = await User.findOne({
+            where:{
+                email
+            }
+        })
+        if(foundEmail){ 
+            APIResponse(res,409,"Email already exists ! Please proceed to login !")
+            return
+        }
+        //else 
 
         const filePath = path.join('./uploads',req.file.filename)
         const cloudiaryResponse = await uploadOnCloudinary(filePath)

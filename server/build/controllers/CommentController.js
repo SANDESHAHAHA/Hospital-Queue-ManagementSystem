@@ -3,7 +3,6 @@ import { validate as isUUID, version as uuidVersion } from 'uuid';
 import FeedPost from "../database/models/Feed_posts.js";
 import Comment from "../database/models/CommentModel.js";
 import CommentVote from "../database/models/CommentVote.js";
-import { AppointmentStatus } from "../globals/types/AppointmentTypes/Appointment.js";
 import { VoteType } from "../globals/types/VoteTypes/voteTypes.js";
 class ExtendedComment extends Comment {
 }
@@ -207,6 +206,38 @@ class CommentController {
         APIResponse(res, 200, 'Voted successfully !', data);
     }
     static async removeCommentVote(req, res) {
+        const { commentId } = req.params;
+        const userId = req.user.id;
+        if (!userId) {
+            APIResponse(res, 403, 'Unauthorized access !');
+            return;
+        }
+        if (!commentId) {
+            APIResponse(res, 400, 'Please send commentId');
+            return;
+        }
+        if (!isUUID(commentId) || uuidVersion(commentId) !== 4) {
+            APIResponse(res, 400, 'Invalid comment id format. UUID v4 expected.');
+            return;
+        }
+        const vote = await CommentVote.findOne({
+            where: {
+                commentId,
+                userId
+            }
+        });
+        if (!vote) {
+            APIResponse(res, 404, 'No vote found for this comment by the user');
+            return;
+        }
+        await vote.destroy();
+        const io = req.app.get('io');
+        if (io) {
+            io.emit('comment-unliked', { commentId, userId });
+        }
+        APIResponse(res, 200, 'Comment vote removed successfully !');
+        return;
     }
 }
+export default CommentController;
 //# sourceMappingURL=CommentController.js.map
