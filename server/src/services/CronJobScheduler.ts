@@ -3,7 +3,7 @@ import https from 'https'
 import { URL } from 'url'
 
 const RENDER_APP_URL = process.env.RENDER_APP_URL || ''
-const RENDER_PING_INTERVAL_MINUTES = Number(process.env.RENDER_PING_INTERVAL_MINUTES || '15')
+const RENDER_PING_INTERVAL_MINUTES = Number(process.env.RENDER_PING_INTERVAL_MINUTES || '14')
 
 const POSTGRES_CONNECTION = process.env.CONNECTION_STRING || ''
 const POSTGRES_PING_INTERVAL_DAYS = Number(process.env.POSTGRES_PING_INTERVAL_DAYS || '7')
