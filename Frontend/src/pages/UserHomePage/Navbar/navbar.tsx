@@ -34,7 +34,6 @@ const navLinks = [
   { label: "Dashboard", href: "#", active: false },
   { label: "Doctors", href: "#", active: true },
   { label: "Appointments", href: "#", active: false },
-  { label: "Patients", href: "#", active: false },
   { label: "Feed", href: "/feed", active: false },
   { label: "Admin", href: "/admin", active: false },
 ];

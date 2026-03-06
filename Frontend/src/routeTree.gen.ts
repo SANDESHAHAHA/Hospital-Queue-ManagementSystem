@@ -13,6 +13,7 @@ import { Route as HomeRouteRouteImport } from './routes/home/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as HomeIndexRouteImport } from './routes/home/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as HomeFeedRouteImport } from './routes/home/feed'
 import { Route as AuthVerifyotpRouteImport } from './routes/_auth/verifyotp'
 import { Route as AuthRegisterRouteImport } from './routes/_auth/register'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
@@ -37,6 +38,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/admin/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HomeFeedRoute = HomeFeedRouteImport.update({
+  id: '/feed',
+  path: '/feed',
+  getParentRoute: () => HomeRouteRoute,
+} as any)
 const AuthVerifyotpRoute = AuthVerifyotpRouteImport.update({
   id: '/_auth/verifyotp',
   path: '/verifyotp',
@@ -59,6 +65,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
   '/verifyotp': typeof AuthVerifyotpRoute
+  '/home/feed': typeof HomeFeedRoute
   '/admin/': typeof AdminIndexRoute
   '/home/': typeof HomeIndexRoute
 }
@@ -67,6 +74,7 @@ export interface FileRoutesByTo {
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
   '/verifyotp': typeof AuthVerifyotpRoute
+  '/home/feed': typeof HomeFeedRoute
   '/admin': typeof AdminIndexRoute
   '/home': typeof HomeIndexRoute
 }
@@ -77,6 +85,7 @@ export interface FileRoutesById {
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/register': typeof AuthRegisterRoute
   '/_auth/verifyotp': typeof AuthVerifyotpRoute
+  '/home/feed': typeof HomeFeedRoute
   '/admin/': typeof AdminIndexRoute
   '/home/': typeof HomeIndexRoute
 }
@@ -88,10 +97,18 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/verifyotp'
+    | '/home/feed'
     | '/admin/'
     | '/home/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/register' | '/verifyotp' | '/admin' | '/home'
+  to:
+    | '/'
+    | '/login'
+    | '/register'
+    | '/verifyotp'
+    | '/home/feed'
+    | '/admin'
+    | '/home'
   id:
     | '__root__'
     | '/'
@@ -99,6 +116,7 @@ export interface FileRouteTypes {
     | '/_auth/login'
     | '/_auth/register'
     | '/_auth/verifyotp'
+    | '/home/feed'
     | '/admin/'
     | '/home/'
   fileRoutesById: FileRoutesById
@@ -142,6 +160,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/home/feed': {
+      id: '/home/feed'
+      path: '/feed'
+      fullPath: '/home/feed'
+      preLoaderRoute: typeof HomeFeedRouteImport
+      parentRoute: typeof HomeRouteRoute
+    }
     '/_auth/verifyotp': {
       id: '/_auth/verifyotp'
       path: '/verifyotp'
@@ -167,10 +192,12 @@ declare module '@tanstack/react-router' {
 }
 
 interface HomeRouteRouteChildren {
+  HomeFeedRoute: typeof HomeFeedRoute
   HomeIndexRoute: typeof HomeIndexRoute
 }
 
 const HomeRouteRouteChildren: HomeRouteRouteChildren = {
+  HomeFeedRoute: HomeFeedRoute,
   HomeIndexRoute: HomeIndexRoute,
 }
 
