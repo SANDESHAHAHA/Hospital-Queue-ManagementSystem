@@ -13,15 +13,30 @@ import {
 import { Input } from "../../components/ui/input"
 import { Label } from "../../components/ui/label"
 import { Eye, EyeOff, Upload, X } from "lucide-react"
-import { useState } from "react"
+import { useState, type ChangeEvent } from "react"
+import type { RegisterUserData } from "../../globals/types/authTypes"
 
 export function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [profileImage, setProfileImage] = useState<string | null>(null)
   const [fileName, setFileName] = useState<string>("")
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const [data,setData] = useState<RegisterUserData>({
+    userName:"",
+    password:"",
+    phoneNumber:"",
+    email:"",
+  })
+
+
+  const clearImage = () => {
+    setProfileImage(null)
+    setFileName("")
+  }
+ const handleChange = (e:ChangeEvent<HTMLInputElement>)=>{
+  
     const file = e.target.files?.[0]
+
     if (file) {
       setFileName(file.name)
       const reader = new FileReader()
@@ -30,13 +45,16 @@ export function RegisterForm() {
       }
       reader.readAsDataURL(file)
     }
-  }
 
-  const clearImage = () => {
-    setProfileImage(null)
-    setFileName("")
-  }
+  const {name,value} = e.target
 
+  setData({
+    ...data,
+    [name]: name === "image" ? e.target.files &&  e.target.files[0] as File : value
+
+  })
+console.log(name,value)
+ }
   return (
     <Card className="w-full max-w-sm">
       <CardHeader className="flex flex-col items-center text-center pb-2">
@@ -67,10 +85,11 @@ export function RegisterForm() {
               </div>
               <Input
                 id="profile-image"
+                name="image"
                 type="file"
                 required
                 accept="image/*"
-                onChange={handleImageChange}
+                onChange={handleChange}
                 className="hidden"
               />
             </label>
@@ -111,6 +130,7 @@ export function RegisterForm() {
                 <Input
                   id="username"
                   name="userName"
+                  onChange={handleChange}
                   type="text"
                   placeholder="john doe"
                   required
@@ -124,6 +144,7 @@ export function RegisterForm() {
                 <Input
                   id="email"
                   name="email"
+                  onChange={handleChange}
                   type="email"
                   placeholder="johndoe@example.com"
                   required
@@ -139,6 +160,7 @@ export function RegisterForm() {
                   type="tel"
                   name="phoneNumber"
                   placeholder="9800000005"
+                  onChange={handleChange}
                   minLength={10}
                   maxLength={10}
                   required
@@ -162,6 +184,7 @@ export function RegisterForm() {
               <div className="relative">
                 <Input
                   id="password"
+                  onChange={handleChange}
                   name="password"
                   type={showPassword ? "text" : "password"}
                   required
