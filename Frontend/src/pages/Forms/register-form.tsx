@@ -1,5 +1,7 @@
 import { Link } from "@tanstack/react-router"
 import { Button } from "../../components/ui/button"
+import { Loader2 } from "lucide-react"
+
 import {
   Card,
   CardAction,
@@ -15,6 +17,7 @@ import { Label } from "../../components/ui/label"
 import { Eye, EyeOff, Upload, X } from "lucide-react"
 import { useState, type ChangeEvent } from "react"
 import type { RegisterUserData } from "../../globals/types/authTypes"
+import { useRegister } from "../../globals/hooks/useRegister"
 
 export function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false)
@@ -27,6 +30,8 @@ export function RegisterForm() {
     phoneNumber:"",
     email:"",
   })
+
+  const registerMutation = useRegister()
 
 
   const clearImage = () => {
@@ -53,12 +58,17 @@ export function RegisterForm() {
     [name]: name === "image" ? e.target.files &&  e.target.files[0] as File : value
 
   })
-console.log(name,value)
  }
+
+const handleSubmit: React.ChangeEventHandler<HTMLFormElement> = (e) => {
+  e.preventDefault()
+  registerMutation.mutate(data)
+ }
+
   return (
+    <form onSubmit={handleSubmit}>
     <Card className="w-full max-w-sm">
       <CardHeader className="flex flex-col items-center text-center pb-2">
-        {/* Profile Avatar Circle at Top */}
         <div className="mb-4">
           {profileImage ? (
             <div className="relative">
@@ -96,7 +106,6 @@ console.log(name,value)
           )}
         </div>
 
-        {/* Tap to upload text */}
         <p className="text-xs text-gray-600 font-medium mb-3">
           {profileImage ? `Selected: ${fileName}` : "Tap to upload photo"}
         </p>
@@ -119,7 +128,6 @@ console.log(name,value)
         </CardAction>
       </CardHeader>
       <CardContent>
-        <form>
           <div className="flex flex-col gap-5">
             {/* User Information */}
             <div className="grid gap-4">
@@ -169,7 +177,6 @@ console.log(name,value)
               </div>
             </div>
 
-            {/* Password Field with Eye Toggle */}
             <div className="grid gap-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password" className="text-sm font-medium">
@@ -205,13 +212,17 @@ console.log(name,value)
               </div>
             </div>
           </div>
-        </form>
       </CardContent>
       <CardFooter className="flex-col gap-2">
-        <Button type="submit" className="w-full">
-          Register
+        <Button type="submit" className="w-full" disabled={registerMutation.isPending}>
+          {registerMutation.isPending && (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          )}
+          {registerMutation.isPending ? "Registering...":"Register"}
         </Button>
       </CardFooter>
     </Card>
+  </form>
+
   )
 }

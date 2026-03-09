@@ -35,7 +35,6 @@ class UserController {
                 email
             }
         });
-        console.log("foundemail", foundEmail);
         if (foundEmail) {
             APIResponse(res, 409, "Email already exists ! Please proceed to login !");
             return;
@@ -50,13 +49,21 @@ class UserController {
         if (fs.existsSync(filePath)) {
             fs.unlinkSync(filePath);
         }
-        await User.create({
+        const data = await User.create({
             userName,
             email,
             password: bcrypt.hashSync(password, 10),
             phoneNumber,
             imageUrl: fileName
         });
+        const payload = {
+            id: data.id,
+            role: data.role,
+            userName: data.userName,
+            email: data.email,
+            phoneNumber: data.phoneNumber,
+            imageUrl: data.phoneNumber
+        };
         try {
             await sendMail({
                 to: email,
@@ -68,7 +75,7 @@ class UserController {
             // log error, but don't fail registration
             console.error('sendMail error:', error);
         }
-        APIResponse(res, 201, "User Registerd Successfully !", fileName);
+        APIResponse(res, 201, "User Registerd Successfully !", payload);
         return;
     }
     static async loginUser(req, res) {
