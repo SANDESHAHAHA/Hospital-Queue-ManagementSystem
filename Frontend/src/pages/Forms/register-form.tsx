@@ -15,7 +15,7 @@ import {
 import { Input } from "../../components/ui/input"
 import { Label } from "../../components/ui/label"
 import { Eye, EyeOff, Upload, X } from "lucide-react"
-import { useState, type ChangeEvent } from "react"
+import {  useState, type ChangeEvent } from "react"
 import type { RegisterUserData } from "../../globals/types/authTypes"
 import { useRegister } from "../../globals/hooks/useRegister"
 
@@ -29,6 +29,7 @@ export function RegisterForm() {
     password:"",
     phoneNumber:"",
     email:"",
+    image:undefined
   })
 
   const registerMutation = useRegister()
@@ -41,7 +42,6 @@ export function RegisterForm() {
  const handleChange = (e:ChangeEvent<HTMLInputElement>)=>{
   
     const file = e.target.files?.[0]
-
     if (file) {
       setFileName(file.name)
       const reader = new FileReader()
@@ -59,7 +59,6 @@ export function RegisterForm() {
 
   })
  }
-
 const handleSubmit: React.ChangeEventHandler<HTMLFormElement> = (e) => {
   e.preventDefault()
   registerMutation.mutate(data)

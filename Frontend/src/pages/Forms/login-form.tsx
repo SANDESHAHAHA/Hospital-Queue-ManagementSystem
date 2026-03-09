@@ -11,13 +11,34 @@ import {
 } from "../../components/ui/card"
 import { Input } from "../../components/ui/input"
 import { Label } from "../../components/ui/label"
-import { Eye, EyeOff } from "lucide-react"
-import { useState } from "react"
+import { Eye, EyeOff, Loader2 } from "lucide-react"
+import { useState, type ChangeEvent } from "react"
+import { useLogin } from "../../globals/hooks/useLogin"
+import type { LoginData } from "../../globals/types/authTypes"
 
 export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false)
+  const [data,setData] = useState<LoginData>({
+    "email":"",
+    "password":""
+  })
+  const loginMutation = useLogin()
 
+  const handleInputChange = (e:ChangeEvent<HTMLInputElement>)=>{
+    const {name,value} = e.target
+    setData({
+      ...data,
+      [name]:value
+    })
+  }
+
+  const handleLoginSubmit = (e:ChangeEvent<HTMLFormElement>)=>{
+    e.preventDefault()
+    loginMutation.mutate(data)
+  }
   return (
+<form onSubmit={handleLoginSubmit}>
+
     <Card className="w-full max-w-sm">
       <CardHeader>
         <CardTitle>Login to your account</CardTitle>
@@ -38,7 +59,6 @@ export function LoginForm() {
         </CardAction>
       </CardHeader>
       <CardContent>
-        <form>
           <div className="flex flex-col gap-5">
             {/* Email Field */}
             <div className="grid gap-2">
@@ -48,6 +68,7 @@ export function LoginForm() {
               <Input
                 id="email"
                 type="email"
+                onChange={handleInputChange}
                 name="email"
                 placeholder="johndoe@example.com"
                 required
@@ -72,6 +93,7 @@ export function LoginForm() {
                 <Input
                   id="password"
                   name="password"
+                  onChange={handleInputChange}
                   type={showPassword ? "text" : "password"}
                   required
                   className="pr-10"
@@ -91,13 +113,17 @@ export function LoginForm() {
               </div>
             </div>
           </div>
-        </form>
       </CardContent>
       <CardFooter className="flex-col gap-2">
-        <Button type="submit" className="w-full">
-          Login
+        <Button type="submit" className="w-full" disabled={loginMutation.isPending}>
+          {loginMutation.isPending && (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          )}
+          {loginMutation.isPending ? "Logging...":"Login"}
         </Button>
       </CardFooter>
     </Card>
+  </form>
+
   )
 }

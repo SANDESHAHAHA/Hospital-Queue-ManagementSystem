@@ -14,9 +14,9 @@ import adminRoute from './routes/AdminRoute.js';
 import appointMentRoute from './routes/AppointmentRoute.js';
 app.use(cors({
     origin: "http://localhost:5173",
-    // methods: ["GET","POST","PUT","DELETE","OPTIONS"],
-    // allowedHeaders: ["Content-Type","Authorization","Accept"],
-    // credentials: true
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "Accept"],
+    credentials: true
 }));
 app.use("", appointMentRoute);
 app.use("", userRoute);
