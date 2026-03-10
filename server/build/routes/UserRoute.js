@@ -19,6 +19,7 @@ router.route("/createQuestion").post(AuthMiddleware.isLoggedIn, AuthMiddleware.r
 router.route("/getAllQuestions").get(AuthMiddleware.isLoggedIn, AuthMiddleware.restrictTo(Role.Doctor, Role.Admin, Role.Patient), errorHandler(QuestionController.getAllQuestions));
 router.route("/voteQuestion/:id").post(AuthMiddleware.isLoggedIn, AuthMiddleware.restrictTo(Role.Admin, Role.Patient, Role.Doctor), errorHandler(QuestionController.questionVote));
 router.route("/removeQuestionVote/:id").post(AuthMiddleware.isLoggedIn, AuthMiddleware.restrictTo(Role.Admin, Role.Doctor, Role.Patient), errorHandler(QuestionController.removeQuestionVote));
+router.route("/resentOtp").post(errorHandler(UserController.resendOtp));
 router.route("/createComment/:questionId").post(AuthMiddleware.isLoggedIn, AuthMiddleware.restrictTo(Role.Admin, Role.Patient, Role.Doctor), errorHandler(CommentController.createComment));
 router.route("/getComments/:questionId").get(AuthMiddleware.isLoggedIn, AuthMiddleware.restrictTo(Role.Admin, Role.Doctor, Role.Patient), errorHandler(CommentController.getCommentByQuestion));
 router.route("/updateComment/:commentId").patch(AuthMiddleware.isLoggedIn, errorHandler(CommentController.updateComment));

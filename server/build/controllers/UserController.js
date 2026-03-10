@@ -17,6 +17,7 @@ import APIResponse from "../utils/APIResponses/ApiResponse.js";
 import fs from 'fs';
 import path from 'path';
 import uploadOnCloudinary from "../services/cloudinaryConfig.js";
+import { resentHtmlOtp } from "../utils/htmlBodies/OtpresendHtml.js";
 class UserController {
     static async registerUser(req, res) {
         const { userName, email, password, phoneNumber } = req.body ?? {};
@@ -233,12 +234,44 @@ class UserController {
             });
             return;
         }
-        //if there is user
         user.password = bcrypt.hashSync(newPassword, 8);
         await user.save();
         res.status(200).json({
             message: "user password updated successfully"
         });
+        return;
+    }
+    static async resendOtp(req, res) {
+        const { email } = req.user;
+        if (!email) {
+            APIResponse(res, 400, "Please send email  !");
+            return;
+        }
+        const [data] = await User.findAll({
+            where: {
+                email
+            }
+        });
+        if (!data) {
+            res.status(404).json({
+                message: "No user with that email found !"
+            });
+            return;
+        }
+        const otp = generateOtp();
+        try {
+            await sendMail({
+                to: email,
+                subject: "Otp resent !",
+                html: resentHtmlOtp(otp)
+            });
+        }
+        catch (error) {
+            console.error('sendMail error:', error);
+        }
+        const OTPcreatedTime = Date.now().toString();
+        await data.update({ OTP: otp, OTPgeneratedTime: OTPcreatedTime });
+        APIResponse(res, 200, "New OTP code sent successfully !");
         return;
     }
     static async getAllDoctors(req, res) {
