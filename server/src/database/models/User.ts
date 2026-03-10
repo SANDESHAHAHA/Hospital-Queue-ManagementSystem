@@ -59,7 +59,7 @@ class User extends Model{
         type:DataType.STRING,
         unique:true
     })
-    declare imageUrl : string
+    declare image : string
     
     @Column({
         type:DataType.STRING,

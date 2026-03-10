@@ -21,6 +21,9 @@ const authSlice = createSlice({
             if(state.user){
                 (state.user as User).token = ""
             }
+        },
+        resetUserState(state:AuthState){
+            state.user = {} 
         }
     }
 })

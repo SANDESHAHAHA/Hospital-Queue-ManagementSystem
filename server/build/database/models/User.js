@@ -56,7 +56,7 @@ __decorate([
         type: DataType.STRING,
         unique: true
     })
-], User.prototype, "imageUrl", void 0);
+], User.prototype, "image", void 0);
 __decorate([
     Column({
         type: DataType.STRING,

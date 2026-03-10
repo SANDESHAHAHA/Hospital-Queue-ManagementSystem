@@ -6,7 +6,7 @@ declare class FeedPost extends Model {
     category: string;
     tag: string;
     isAnswered: boolean;
-    imageUrl: string;
+    image: string;
 }
 export default FeedPost;
 //# sourceMappingURL=Feed_posts.d.ts.map

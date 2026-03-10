@@ -23,6 +23,7 @@ router.route("/createQuestion").post(AuthMiddleware.isLoggedIn as unknown as Req
 router.route("/getAllQuestions").get(AuthMiddleware.isLoggedIn as unknown as RequestHandler,AuthMiddleware.restrictTo(Role.Doctor,Role.Admin,Role.Patient) as unknown as RequestHandler,errorHandler(QuestionController.getAllQuestions))
 router.route("/voteQuestion/:id").post(AuthMiddleware.isLoggedIn as unknown as RequestHandler,AuthMiddleware.restrictTo(Role.Admin,Role.Patient,Role.Doctor) as unknown as RequestHandler,errorHandler(QuestionController.questionVote))
 router.route("/removeQuestionVote/:id").post(AuthMiddleware.isLoggedIn as unknown as RequestHandler,AuthMiddleware.restrictTo(Role.Admin,Role.Doctor,Role.Patient) as unknown as RequestHandler,errorHandler(QuestionController.removeQuestionVote))
+router.route("/resentOtp").post(errorHandler(UserController.resendOtp))
 
 router.route("/createComment/:questionId").post(AuthMiddleware.isLoggedIn as unknown as RequestHandler,AuthMiddleware.restrictTo(Role.Admin,Role.Patient,Role.Doctor) as unknown as RequestHandler,errorHandler(CommentController.createComment))
 router.route("/getComments/:questionId").get(AuthMiddleware.isLoggedIn as unknown as RequestHandler,AuthMiddleware.restrictTo(Role.Admin,Role.Doctor,Role.Patient) as unknown as RequestHandler,errorHandler(CommentController.getCommentByQuestion))

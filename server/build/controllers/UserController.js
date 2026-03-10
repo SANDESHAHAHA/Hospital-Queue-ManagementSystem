@@ -54,7 +54,7 @@ class UserController {
             email,
             password: bcrypt.hashSync(password, 10),
             phoneNumber,
-            imageUrl: fileName
+            image: fileName
         });
         const payload = {
             id: data.id,
@@ -62,7 +62,7 @@ class UserController {
             userName: data.userName,
             email: data.email,
             phoneNumber: data.phoneNumber,
-            imageUrl: data.phoneNumber
+            image: data.image
         };
         try {
             await sendMail({

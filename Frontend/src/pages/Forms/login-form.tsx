@@ -13,7 +13,7 @@ import { Input } from "../../components/ui/input"
 import { Label } from "../../components/ui/label"
 import { Eye, EyeOff, Loader2 } from "lucide-react"
 import { useState, type ChangeEvent } from "react"
-import { useLogin } from "../../globals/hooks/useLogin"
+import { useLogin } from "../../globals/hooks/Auth/useLogin"
 import type { LoginData } from "../../globals/types/authTypes"
 
 export function LoginForm() {

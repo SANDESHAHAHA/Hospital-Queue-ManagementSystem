@@ -54,7 +54,7 @@ class FeedPost extends Model{
         type:DataType.STRING,
         defaultValue:null
     })
-    declare imageUrl : string
+    declare image : string
 }
 
 export default FeedPost

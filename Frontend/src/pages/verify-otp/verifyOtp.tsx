@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
   InputOTP,
   InputOTPGroup,
@@ -14,34 +14,44 @@ import {
 } from "../../components/ui/card"
 import { Button } from "../../components/ui/button"
 import { Label } from "../../components/ui/label"
-import { CheckCircle, Clock } from "lucide-react"
+import {  Clock, Loader2 } from "lucide-react"
+import { useVerifyOtp } from "../../globals/hooks/Auth/useVerifyotp"
+import { useAppSelector } from "../../store/hooks"
+import type { User } from "../../globals/types/authTypes"
 
 export function VerifyOtp() {
   const [otp, setOtp] = useState("")
-  const [isVerifying, setIsVerifying] = useState(false)
-  const [isVerified, setIsVerified] = useState(false)
-  const [timeLeft, setTimeLeft] = useState(120) // 5 minutes
+  const [timeLeft, setTimeLeft] = useState(120) 
+  console.log("this is otp",otp)
 
-  const handleVerify = async () => {
-    if (otp.length === 6) {
-      setIsVerifying(true)
-      // Simulate API call
-      setTimeout(() => {
-        setIsVerifying(false)
-        setIsVerified(true)
-      }, 1500)
-    }
-  }
+  const verifyOtpMutation = useVerifyOtp()
 
-  const handleResendOTP = () => {
-    setOtp("")
-    setIsVerified(false)
-    setTimeLeft(300)
-    // Add your resend OTP logic here
-  }
+
 
   const minutes = Math.floor(timeLeft / 60)
   const seconds = timeLeft % 60
+
+  const {user} = useAppSelector((state)=>state.auth) 
+
+  const data = {
+    email:(user as User)?.email as string,
+    otp
+  }
+  console.log("this is ddata form the state",user)
+  const handlSendOtp = ()=>{
+    verifyOtpMutation.mutate(data)
+  }
+
+  useEffect(() => {
+    // Only start if there's remaining time
+    if (timeLeft <= 0) return
+    const id = setInterval(() => {
+      setTimeLeft((t) => (t > 0 ? t - 1 : 0))
+    }, 1000)
+    return () => clearInterval(id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
 
   return (
     <Card className="w-full max-w-sm">
@@ -53,21 +63,7 @@ export function VerifyOtp() {
       </CardHeader>
 
       <CardContent className="space-y-6">
-        {isVerified ? (
-          <div className="flex flex-col items-center justify-center gap-4 py-8">
-            <div className="rounded-full bg-green-100 p-4">
-              <CheckCircle className="h-12 w-12 text-green-600" />
-            </div>
-            <div className="text-center">
-              <p className="text-lg font-semibold text-gray-900">
-                Email verified!
-              </p>
-              <p className="text-sm text-gray-600">
-                Your email has been successfully verified
-              </p>
-            </div>
-          </div>
-        ) : (
+          
           <div className="space-y-4">
             <div className="space-y-2">
               <Label className="text-sm font-medium">OTP Code</Label>
@@ -76,7 +72,6 @@ export function VerifyOtp() {
                   maxLength={6}
                   value={otp}
                   onChange={setOtp}
-                  disabled={isVerifying}
                 >
                   <InputOTPGroup className="gap-2">
                     <InputOTPSlot
@@ -121,7 +116,7 @@ export function VerifyOtp() {
               <p>
                 Didn't receive the code?{" "}
                 <button
-                  onClick={handleResendOTP}
+                  
                   className="font-semibold text-blue-600 hover:text-blue-700 underline"
                 >
                   Resend OTP
@@ -129,26 +124,26 @@ export function VerifyOtp() {
               </p>
             </div>
           </div>
-        )}
+        
       </CardContent>
 
       <CardFooter className="flex-col gap-2">
-        {isVerified ? (
-          <Button className="w-full">Continue</Button>
-        ) : (
           <>
             <Button
-              onClick={handleVerify}
-              disabled={otp.length !== 6 || isVerifying}
+              onClick={handlSendOtp}
               className="w-full"
+              disabled ={verifyOtpMutation.isPending}
             >
-              {isVerifying ? "Verifying..." : "Verify OTP"}
+          {verifyOtpMutation.isPending && (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          )}
+          {verifyOtpMutation.isPending ? "Verifying...":"Verify"}
             </Button>
             <p className="text-xs text-center text-gray-500">
               OTP consists of 6 digits
             </p>
           </>
-        )}
+      
       </CardFooter>
     </Card>
   )

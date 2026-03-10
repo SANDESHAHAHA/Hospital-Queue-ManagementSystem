@@ -17,7 +17,7 @@ import { Label } from "../../components/ui/label"
 import { Eye, EyeOff, Upload, X } from "lucide-react"
 import {  useState, type ChangeEvent } from "react"
 import type { RegisterUserData } from "../../globals/types/authTypes"
-import { useRegister } from "../../globals/hooks/useRegister"
+import { useRegister } from "../../globals/hooks/Auth/useRegister"
 
 export function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false)

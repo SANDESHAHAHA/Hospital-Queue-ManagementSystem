@@ -18,10 +18,11 @@ import APIResponse from "../utils/APIResponses/ApiResponse.js";
 import fs from 'fs'
 import path from 'path'
 import uploadOnCloudinary from "../services/cloudinaryConfig.js";
+import { resentHtmlOtp } from "../utils/htmlBodies/OtpresendHtml.js";
 
 interface IRequestUser extends Request{
     file?:Express.Multer.File,
-    user?:{
+    user:{
         id:string,
         email:string
     }
@@ -69,7 +70,7 @@ class UserController{
             email,
             password:bcrypt.hashSync(password,10),
             phoneNumber,
-            imageUrl : fileName
+            image : fileName
 
         })
         const payload = {
@@ -78,7 +79,7 @@ class UserController{
             userName:data.userName,
             email:data.email,
             phoneNumber:data.phoneNumber,
-            imageUrl:data.phoneNumber
+            image:data.image
         }
         try {
             await sendMail({
@@ -256,7 +257,6 @@ class UserController{
             })
             return
         }
-        //if there is user
         user.password = bcrypt.hashSync(newPassword,8)
         await user.save()
 
@@ -264,6 +264,39 @@ class UserController{
             message:"user password updated successfully"
         })
         return
+    }
+    public static async resendOtp(req:IRequestUser,res:Response):Promise<void>{
+        const {email} = req.user
+        if(!email){
+            APIResponse(res,400,"Please send email  !")
+            return
+        }
+        const [data] = await User.findAll({
+            where:{
+                email
+            }
+        })
+        if(!data){
+            res.status(404).json({
+                message:"No user with that email found !"
+            })
+            return
+        }
+        const otp = generateOtp()
+        try {
+            await sendMail({
+                to: email,
+                subject: "Otp resent !",
+                html: resentHtmlOtp(otp)
+            })
+        } catch (error) {
+            console.error('sendMail error:', error)
+        }
+        const OTPcreatedTime = Date.now().toString()
+        await data.update({OTP:otp,OTPgeneratedTime:OTPcreatedTime})
+
+         APIResponse(res,200,"New OTP code sent successfully !")
+         return
     }
 
     public static async getAllDoctors(req:Request,res:Response):Promise<void>{

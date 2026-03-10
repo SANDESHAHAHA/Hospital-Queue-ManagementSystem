@@ -50,7 +50,7 @@ __decorate([
         type: DataType.STRING,
         defaultValue: null
     })
-], FeedPost.prototype, "imageUrl", void 0);
+], FeedPost.prototype, "image", void 0);
 FeedPost = __decorate([
     Table({
         tableName: 'feed_posts',

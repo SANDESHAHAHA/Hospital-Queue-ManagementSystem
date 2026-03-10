@@ -1,8 +1,8 @@
-import { useAppDispatch } from "../../store/hooks";
+import { useAppDispatch } from "../../../store/hooks";
 import {useMutation} from "@tanstack/react-query"
-import type { RegisterUserData } from "../types/authTypes";
-import { API } from "../../axiosInstance";
-import { setUser } from "../../store/authSlice";
+import type { RegisterUserData } from "../../types/authTypes";
+import { API } from "../../../axiosInstance";
+import { setUser } from "../../../store/authSlice";
 import { useNavigate } from "@tanstack/react-router";
 
 export function useRegister(){

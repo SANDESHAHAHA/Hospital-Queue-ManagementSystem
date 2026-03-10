@@ -23,7 +23,6 @@ import {
 } from "../../../components/ui/dialog";
 import { Calendar } from "../../../components/ui/calendar";
 
-// ─── Data ────────────────────────────────────────────────────────────────────
 
 const user = {
   name: "John Doe",
@@ -55,7 +54,7 @@ function BookingDialog({ doctor }:any) {
   const [date, setDate] = useState(new Date());
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [step, setStep] = useState(1);
-
+  
   return (
     <Dialog onOpenChange={() => { setStep(1); setSelectedSlot(null); }}>
       <DialogTrigger asChild>

@@ -38,7 +38,7 @@ CommentVote.belongsTo(FeedPost, { foreignKey: "feedId" });
 try {
     await sequelize.authenticate();
     console.log("database connected successfully !");
-    // await sequelize.sync({force:false,alter:true})
+    // await sequelize.sync({force:false,alter:false})
     // console.log('synced !')
 }
 catch (error) {

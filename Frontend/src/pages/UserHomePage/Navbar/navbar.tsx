@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "../../../components/ui/avatar";
-import { Badge } from "../../../components/ui/badge";
+import { Avatar, AvatarImage } from "../../../components/ui/avatar";
 import { Button } from "../../../components/ui/button";
 import { Separator } from "../../../components/ui/separator";
 import {
@@ -15,20 +14,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../../../components/ui/dialog";
+import { useAppSelector } from "../../../store/hooks";
+import type { User } from "../../../globals/types/authTypes";
+import { useSignOut } from "../../../globals/hooks/Auth/useSignOut";
 
-const user = {
-  name: "John Doe",
-  role: "Admin",
-  email: "john.doe@medicare.com",
-  phone: "+1 (555) 012-3456",
-  department: "Hospital Administration",
-  employeeId: "HMS-00421",
-  joined: "March 2021",
-  initials: "JD",
-  status: "Active",
-  lastLogin: "Today, 8:42 AM",
-  avatar: "",
-};
+
 
 const navLinks = [
   { label: "Dashboard", href: "#", active: false },
@@ -39,6 +29,7 @@ const navLinks = [
 ];
 
 function UserProfileDialog() {
+  const user = useAppSelector((state) => state.auth.user) as User;
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -58,10 +49,7 @@ function UserProfileDialog() {
           <div className="absolute -bottom-10 left-6">
             <div className="relative">
               <Avatar className="h-20 w-20 border-4 border-white shadow-lg">
-                <AvatarImage src={user.avatar} />
-                <AvatarFallback className="bg-green-100 text-green-700 text-2xl font-extrabold">
-                  {user.initials}
-                </AvatarFallback>
+                <AvatarImage src={user?.image as string} />
               </Avatar>
               <span className="absolute bottom-1 right-1 w-4 h-4 rounded-full bg-green-400 border-2 border-white" />
             </div>
@@ -73,12 +61,10 @@ function UserProfileDialog() {
           <div>
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-extrabold text-gray-900">{user.name}</h2>
-                <p className="text-green-600 font-semibold text-sm">{user.role}</p>
+                <h2 className="text-xl font-extrabold text-gray-900">{user?.userName}</h2>
+                <p className="text-green-600 font-semibold text-sm">{user?.role}</p>
               </div>
-              <Badge className="bg-green-100 text-green-700 border-green-200 text-xs font-semibold">
-                {user.status}
-              </Badge>
+
             </div>
           </div>
 
@@ -93,7 +79,7 @@ function UserProfileDialog() {
                   </svg>
                 ),
                 label: "Email",
-                value: user.email,
+                value: user?.email,
               },
               {
                 icon: (
@@ -102,44 +88,8 @@ function UserProfileDialog() {
                   </svg>
                 ),
                 label: "Phone",
-                value: user.phone,
-              },
-              {
-                icon: (
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                  </svg>
-                ),
-                label: "Department",
-                value: user.department,
-              },
-              {
-                icon: (
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
-                  </svg>
-                ),
-                label: "Employee ID",
-                value: user.employeeId,
-              },
-              {
-                icon: (
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                ),
-                label: "Joined",
-                value: user.joined,
-              },
-              {
-                icon: (
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                ),
-                label: "Last Login",
-                value: user.lastLogin,
-              },
+                value: user?.phoneNumber,
+              }
             ].map((item) => (
               <div key={item.label} className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-green-50 border border-green-100 flex items-center justify-center text-green-600 shrink-0">
@@ -167,6 +117,14 @@ function UserProfileDialog() {
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [popoverOpen, setPopoverOpen] = useState(false);
+  const user = useAppSelector((state) => state.auth.user) as User;
+  
+  const signOutMutation = useSignOut()
+
+  const handleLogout = ()=>{
+    signOutMutation.mutate()
+  }
+
 
   return (
     <header className="sticky top-0 z-50 bg-white/80 backdrop-blur border-b border-gray-100 shadow-sm">
@@ -224,14 +182,11 @@ export default function Navbar() {
             <PopoverTrigger asChild>
               <button className="flex items-center gap-2.5 px-2 py-1.5 rounded-xl hover:bg-green-50 border border-transparent hover:border-green-100 transition-all group">
                 <Avatar className="h-8 w-8 border-2 border-green-200">
-                  <AvatarImage src={user.avatar} />
-                  <AvatarFallback className="bg-green-100 text-green-700 text-xs font-bold">
-                    {user.initials}
-                  </AvatarFallback>
+                  <AvatarImage src={user?.image as string} />
                 </Avatar>
                 <div className="hidden sm:block text-left">
-                  <p className="text-xs font-bold text-gray-800 leading-tight">{user.name}</p>
-                  <p className="text-xs text-green-600 font-medium">{user.role}</p>
+                  <p className="text-xs font-bold text-gray-800 leading-tight">{user?.userName}</p>
+                  <p className="text-xs text-green-600 font-medium">{user?.role}</p>
                 </div>
                 <svg className="w-3.5 h-3.5 text-gray-400 group-hover:text-green-600 transition-colors hidden sm:block" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
@@ -243,16 +198,11 @@ export default function Navbar() {
               {/* User Summary */}
               <div className="flex items-center gap-3 px-3 py-3 bg-green-50 rounded-xl mb-2 border border-green-100">
                 <Avatar className="h-10 w-10 border-2 border-green-200">
-                  <AvatarFallback className="bg-green-100 text-green-700 text-sm font-bold">
-                    {user.initials}
-                  </AvatarFallback>
+                  <AvatarImage src={user?.image as string} />
                 </Avatar>
                 <div className="min-w-0">
-                  <p className="text-sm font-bold text-gray-900 truncate">{user.name}</p>
-                  <p className="text-xs text-gray-500 truncate">{user.email}</p>
-                  <Badge className="mt-1 text-[10px] bg-green-100 text-green-700 border-green-200 px-1.5 py-0">
-                    {user.status}
-                  </Badge>
+                  <p className="text-sm font-bold text-gray-900 truncate">{user?.userName}</p>
+                  <p className="text-xs text-gray-500 truncate">{user?.email}</p>
                 </div>
               </div>
 
@@ -260,25 +210,11 @@ export default function Navbar() {
               <div className="space-y-0.5">
                 <UserProfileDialog />
 
-                <button className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-700 rounded-lg transition-colors flex items-center gap-2.5 font-medium">
-                  <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                  Settings
-                </button>
-
-                <button className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-700 rounded-lg transition-colors flex items-center gap-2.5 font-medium">
-                  <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  Help & Support
-                </button>
-              </div>
+              </div> 
 
               <Separator className="my-2 bg-gray-100" />
 
-              <button className="w-full text-left px-3 py-2 text-sm text-red-500 hover:bg-red-50 rounded-lg transition-colors flex items-center gap-2.5 font-medium">
+              <button onClick={handleLogout} className="w-full text-left px-3 py-2 text-sm text-red-500 hover:bg-red-50 rounded-lg transition-colors flex items-center gap-2.5 font-medium">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                 </svg>
