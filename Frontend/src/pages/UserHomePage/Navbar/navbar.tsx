@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Avatar, AvatarImage } from "../../../components/ui/avatar";
 import { Button } from "../../../components/ui/button";
 import { Separator } from "../../../components/ui/separator";
@@ -17,6 +17,7 @@ import {
 import { useAppSelector } from "../../../store/hooks";
 import type { User } from "../../../globals/types/authTypes";
 import { useSignOut } from "../../../globals/hooks/Auth/useSignOut";
+import ApplyModal from "./applyforDocModal";
 
 
 
@@ -116,6 +117,11 @@ function UserProfileDialog() {
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [open,setOpen] = useState(false)
+
+  const openModal = useCallback(()=>setOpen(true),[])
+  const closeModal = useCallback(()=>setOpen(false),[])
+
   const [popoverOpen, setPopoverOpen] = useState(false);
   const user = useAppSelector((state) => state.auth.user) as User;
   
@@ -162,13 +168,17 @@ export default function Navbar() {
         {/* Right Side */}
         <div className="flex items-center gap-3 shrink-0">
           {/* Apply for Doctor Button */}
-          <Button className="hidden sm:flex bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg gap-2">
+          <Button onClick={openModal}  className="hidden sm:flex bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg gap-2">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
             </svg>
             Apply for Doctor
           </Button>
-
+          {
+            open && (
+              <ApplyModal closeModal={closeModal} />
+            )
+          }
           {/* Notification Bell */}
           <button className="relative w-9 h-9 rounded-lg border border-gray-100 bg-white flex items-center justify-center text-gray-500 hover:border-green-200 hover:text-green-600 transition-colors shadow-sm">
             <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

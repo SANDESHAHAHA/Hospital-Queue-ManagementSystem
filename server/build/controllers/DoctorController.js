@@ -8,7 +8,7 @@ class DoctorController {
         const { specialization, licenseNumber } = req.body ?? {};
         if (!specialization || !licenseNumber) {
             res.status(400).json({
-                message: "Please provide specialization,licenseNumber,avgConsultationTime ! "
+                message: "Please provide specialization,licenseNumber ! "
             });
             return;
         }

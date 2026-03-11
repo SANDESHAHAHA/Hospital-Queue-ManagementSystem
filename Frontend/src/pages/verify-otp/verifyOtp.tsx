@@ -18,6 +18,7 @@ import {  Clock, Loader2 } from "lucide-react"
 import { useVerifyOtp } from "../../globals/hooks/Auth/useVerifyotp"
 import { useAppSelector } from "../../store/hooks"
 import type { User } from "../../globals/types/authTypes"
+import { useResendOtp } from "../../globals/hooks/ResendEmail/useResendOtp"
 
 export function VerifyOtp() {
   const [otp, setOtp] = useState("")
@@ -25,6 +26,7 @@ export function VerifyOtp() {
   console.log("this is otp",otp)
 
   const verifyOtpMutation = useVerifyOtp()
+  const resendOtpMutation = useResendOtp()
 
 
 
@@ -32,19 +34,25 @@ export function VerifyOtp() {
   const seconds = timeLeft % 60
 
   const {user} = useAppSelector((state)=>state.auth) 
+  const email =  (user as User)?.email
 
   const data = {
     email:(user as User)?.email as string,
     otp
   }
-  console.log("this is ddata form the state",user)
+
   const handlSendOtp = ()=>{
     verifyOtpMutation.mutate(data)
   }
-
+  const handleResendOtp = (email: string) => {
+    if (!email) return
+    resendOtpMutation.mutate(email)
+    setTimeLeft(120)
+  }
   useEffect(() => {
-    // Only start if there's remaining time
-    if (timeLeft <= 0) return
+    if (timeLeft <= 0) {
+      return
+    }
     const id = setInterval(() => {
       setTimeLeft((t) => (t > 0 ? t - 1 : 0))
     }, 1000)
@@ -116,7 +124,7 @@ export function VerifyOtp() {
               <p>
                 Didn't receive the code?{" "}
                 <button
-                  
+                  onClick={() => email && handleResendOtp(email)}
                   className="font-semibold text-blue-600 hover:text-blue-700 underline"
                 >
                   Resend OTP

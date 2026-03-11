@@ -87,7 +87,7 @@ class UserController {
             });
             return;
         }
-        const [data] = await User.findAll({
+        const data = await User.findOne({
             where: {
                 email
             }
@@ -131,9 +131,18 @@ class UserController {
         // store the otp to the database 
         const OTPcreatedTime = Date.now().toString();
         await data.update({ OTP: otp, OTPgeneratedTime: OTPcreatedTime });
+        const payload = {
+            id: data.id,
+            userName: data.userName,
+            email: data.email,
+            role: data.role,
+            phoneNumber: data.phoneNumber,
+            image: data.image
+        };
         // ask non-admin user to submit otp to complete login
         res.status(200).json({
             message: "User can now enter otp for further to login !",
+            data: payload
         });
     }
     static async getAllUsers(req, res) {
@@ -242,7 +251,7 @@ class UserController {
         return;
     }
     static async resendOtp(req, res) {
-        const { email } = req.user;
+        const { email } = req.params;
         if (!email) {
             APIResponse(res, 400, "Please send email  !");
             return;

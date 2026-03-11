@@ -104,7 +104,7 @@ class UserController{
             })
             return
         }
-        const [data] = await User.findAll({
+        const data = await User.findOne({
             where:{
                 email
             }
@@ -149,9 +149,19 @@ class UserController{
         const OTPcreatedTime = Date.now().toString()
         await data.update({OTP:otp,OTPgeneratedTime:OTPcreatedTime})
 
+        const payload = {
+            id:data.id,
+            userName:data.userName,
+            email:data.email,
+            role:data.role,
+            phoneNumber:data.phoneNumber,
+            image:data.image
+        }
+
         // ask non-admin user to submit otp to complete login
         res.status(200).json({
-            message:"User can now enter otp for further to login !",    
+            message:"User can now enter otp for further to login !",
+            data:payload
         })
     }
     public static async getAllUsers(req:Request,res:Response):Promise<void>{
@@ -266,7 +276,7 @@ class UserController{
         return
     }
     public static async resendOtp(req:IRequestUser,res:Response):Promise<void>{
-        const {email} = req.user
+        const {email} = req.params
         if(!email){
             APIResponse(res,400,"Please send email  !")
             return
@@ -285,7 +295,7 @@ class UserController{
         const otp = generateOtp()
         try {
             await sendMail({
-                to: email,
+                to: email as string,
                 subject: "Otp resent !",
                 html: resentHtmlOtp(otp)
             })
