@@ -23,7 +23,6 @@ import { useResendOtp } from "../../globals/hooks/ResendEmail/useResendOtp"
 export function VerifyOtp() {
   const [otp, setOtp] = useState("")
   const [timeLeft, setTimeLeft] = useState(120) 
-  console.log("this is otp",otp)
 
   const verifyOtpMutation = useVerifyOtp()
   const resendOtpMutation = useResendOtp()

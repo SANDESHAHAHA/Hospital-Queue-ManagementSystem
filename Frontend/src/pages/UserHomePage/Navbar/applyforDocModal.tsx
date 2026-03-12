@@ -2,6 +2,19 @@ import { useState, type ChangeEvent } from "react"
 import { createPortal } from "react-dom"
 import type { applyforDocData } from "../../../globals/types/docTypes"
 import { useApplyForDoctor } from "../../../globals/hooks/Doctor/useApplyForDoctor"
+import { Loader2 } from "lucide-react"
+import { Button } from "../../../components/ui/button"
+import { Input } from "../../../components/ui/input"
+import { Label } from "../../../components/ui/label"
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "../../../components/ui/select"
 
 
 
@@ -39,7 +52,7 @@ export default function ApplyModal({closeModal}:{closeModal:()=>void}) {
 
     setData({
         ...data,
-        [name]:value
+        [name]: name === "licenseNumber" ? val : value
     })
   }
    const applyForDocMutation = useApplyForDoctor() 
@@ -78,54 +91,66 @@ export default function ApplyModal({closeModal}:{closeModal:()=>void}) {
             <div className="p-6 flex flex-col gap-5">
 
               <div className="flex flex-col gap-1.5">
-                <label id="specialization" className="text-xs font-semibold text-zinc-400 uppercase tracking-widest">
+                <Label htmlFor="specialization" className="text-xs font-semibold text-zinc-400 uppercase tracking-widest">
                   Specialization
-                </label>
+                </Label>
 
-                <select
-                  onChange={handleChange}
-                  name="specialization"
-                  className="w-full bg-zinc-800 border border-zinc-700 text-zinc-200 text-sm rounded-xl px-3 py-2.5"
+                <Select
+                  onValueChange={(val) =>
+                    setData({
+                      ...data,
+                      specialization: val,
+                    })
+                  }
+                  defaultValue={data.specialization}
                 >
-                  <option value="" >— Select Specialization —</option>
+                  <SelectTrigger id="specialization" className="w-full bg-zinc-800 border border-zinc-700 text-zinc-200 text-sm rounded-xl px-3 py-2.5">
+                    <SelectValue placeholder="— Select Specialization —" />
+                  </SelectTrigger>
 
-                  <optgroup label="Medical">
-                    <option value="cardiology">Cardiology</option>
-                    <option value="neurology">Neurology</option>
-                    <option value="pediatrics">Pediatrics</option>
-                    <option value="oncology">Oncology</option>
-                    <option value="psychiatry">Psychiatry</option>
-                    <option value="dermatology">Dermatology</option>
-                    <option value="radiology">Radiology</option>
-                  </optgroup>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Medical</SelectLabel>
+                      <SelectItem value="cardiology">Cardiology</SelectItem>
+                      <SelectItem value="neurology">Neurology</SelectItem>
+                      <SelectItem value="pediatrics">Pediatrics</SelectItem>
+                      <SelectItem value="oncology">Oncology</SelectItem>
+                      <SelectItem value="psychiatry">Psychiatry</SelectItem>
+                      <SelectItem value="dermatology">Dermatology</SelectItem>
+                      <SelectItem value="radiology">Radiology</SelectItem>
+                    </SelectGroup>
 
-                  <optgroup label="Surgical">
-                    <option value="surgery">General Surgery</option>
-                    <option value="orthopedics">Orthopedics</option>
-                    <option value="neurosurgery">Neurosurgery</option>
-                  </optgroup>
+                    <SelectGroup>
+                      <SelectLabel>Surgical</SelectLabel>
+                      <SelectItem value="surgery">General Surgery</SelectItem>
+                      <SelectItem value="orthopedics">Orthopedics</SelectItem>
+                      <SelectItem value="neurosurgery">Neurosurgery</SelectItem>
+                    </SelectGroup>
 
-                  <optgroup label="Other">
-                    <option value="emergency">Emergency Medicine</option>
-                    <option value="anesthesiology">Anesthesiology</option>
-                    <option value="pathology">Pathology</option>
-                  </optgroup>
-                </select>
+                    <SelectGroup>
+                      <SelectLabel>Other</SelectLabel>
+                      <SelectItem value="emergency">Emergency Medicine</SelectItem>
+                      <SelectItem value="anesthesiology">Anesthesiology</SelectItem>
+                      <SelectItem value="pathology">Pathology</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* License */}
               <div className="flex flex-col gap-1.5">
-                <label id="licenseNumber" className="text-xs font-semibold text-zinc-400 uppercase tracking-widest ">
+                <Label htmlFor="licenseNumber" className="text-xs font-semibold text-zinc-400 uppercase tracking-widest ">
                   License Number
-                </label>
+                </Label>
 
-                <input
+                <Input
+                  id="licenseNumber"
                   type="text"
                   placeholder="e.g. MD-2024-100342"
                   required
                   name="licenseNumber"
                   onChange={handleChange}
-                  className="w-full bg-zinc-800 border border-zinc-700 text-zinc-200 text-sm rounded-xl px-3 py-2.5 font-mono tracking-widest"
+                  className="w-full bg-zinc-800 border-zinc-700 text-zinc-200 text-sm rounded-xl px-3 py-2.5 font-mono tracking-widest"
                 />
 
                 <p className={`${hintColor} text-xs`}>
@@ -144,19 +169,16 @@ export default function ApplyModal({closeModal}:{closeModal:()=>void}) {
               </p>
 
               <div className="flex gap-2">
-                <button
-                  onClick={closeModal}
-                  className="text-zinc-400 hover:text-zinc-100 text-sm border border-zinc-700 px-4 py-2 rounded-xl"
-                >
+                <Button variant="outline" onClick={closeModal} className="text-black-400 text-sm px-4 py-2 rounded-xl">
                   Cancel
-                </button>
+                </Button>
 
-                <button
-                onClick={handleSubmit}
-                  className="bg-green-600 hover:bg-green-500 text-white text-sm font-semibold px-5 py-2 rounded-xl"
-                >
-                  Submit
-                </button>
+                <Button onClick={handleSubmit} type="submit" className="bg-green-600 hover:bg-green-500 text-white text-sm font-semibold px-5 py-2 rounded-xl" disabled={applyForDocMutation.isPending}>
+                  {applyForDocMutation.isPending && (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  )}
+                  {applyForDocMutation.isPending ? "Submitting..." : "Submit"}
+                </Button>
               </div>
             </div>
 

@@ -17,6 +17,7 @@ interface IdoctorRequest extends Request {
 class DoctorController {
     public static async applyForDoctor(req:IdoctorRequest,res:Response):Promise<void>{
         const {specialization,licenseNumber} = req.body ?? {}
+        
         if(!specialization || !licenseNumber  ){
             res.status(400).json({
                 message:"Please provide specialization,licenseNumber ! "
