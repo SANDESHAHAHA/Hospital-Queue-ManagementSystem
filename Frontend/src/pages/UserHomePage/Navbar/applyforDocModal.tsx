@@ -55,14 +55,15 @@ export default function ApplyModal({closeModal}:{closeModal:()=>void}) {
         [name]: name === "licenseNumber" ? val : value
     })
   }
-   const applyForDocMutation = useApplyForDoctor() 
+   const applyForDocMutation = useApplyForDoctor({closeModal})
 
-   const handleSubmit = ()=>{
+   const handleSubmit = (e:ChangeEvent<HTMLFormElement>)=>{
+    e.preventDefault()
     applyForDocMutation.mutate(data)
    }
   const modal = (
+    <form onSubmit={handleSubmit} >
     <div
-
       className="fixed inset-0 bg-black/50 backdrop-blur-md flex items-center justify-center p-4 z-50 overflow-auto"
     >
       <div className="bg-zinc-900 border border-zinc-700/60 rounded-2xl w-full max-w-md shadow-2xl transform-gpu">
@@ -96,12 +97,6 @@ export default function ApplyModal({closeModal}:{closeModal:()=>void}) {
                 </Label>
 
                 <Select
-                  onValueChange={(val) =>
-                    setData({
-                      ...data,
-                      specialization: val,
-                    })
-                  }
                   defaultValue={data.specialization}
                 >
                   <SelectTrigger id="specialization" className="w-full bg-zinc-800 border border-zinc-700 text-zinc-200 text-sm rounded-xl px-3 py-2.5">
@@ -147,10 +142,10 @@ export default function ApplyModal({closeModal}:{closeModal:()=>void}) {
                   id="licenseNumber"
                   type="text"
                   placeholder="e.g. MD-2024-100342"
-                  required
                   name="licenseNumber"
                   onChange={handleChange}
                   className="w-full bg-zinc-800 border-zinc-700 text-zinc-200 text-sm rounded-xl px-3 py-2.5 font-mono tracking-widest"
+                  required
                 />
 
                 <p className={`${hintColor} text-xs`}>
@@ -173,7 +168,7 @@ export default function ApplyModal({closeModal}:{closeModal:()=>void}) {
                   Cancel
                 </Button>
 
-                <Button onClick={handleSubmit} type="submit" className="bg-green-600 hover:bg-green-500 text-white text-sm font-semibold px-5 py-2 rounded-xl" disabled={applyForDocMutation.isPending}>
+                <Button  type="submit" className="bg-green-600 hover:bg-green-500 text-white text-sm font-semibold px-5 py-2 rounded-xl" disabled={applyForDocMutation.isPending}>
                   {applyForDocMutation.isPending && (
                     <Loader2 className="w-4 h-4 animate-spin" />
                   )}
@@ -184,6 +179,7 @@ export default function ApplyModal({closeModal}:{closeModal:()=>void}) {
 
           </div>
         </div>
+    </form>
   )
 
   if (typeof document === "undefined") return null

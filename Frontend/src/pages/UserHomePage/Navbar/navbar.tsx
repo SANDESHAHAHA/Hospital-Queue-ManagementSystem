@@ -130,7 +130,7 @@ export default function Navbar() {
   const handleLogout = ()=>{
     signOutMutation.mutate()
   }
-
+ 
 
   return (
     <header className="sticky top-0 z-50 bg-white/80 backdrop-blur border-b border-gray-100 shadow-sm">
