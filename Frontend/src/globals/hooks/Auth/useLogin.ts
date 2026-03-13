@@ -4,6 +4,7 @@ import { API } from "../../../axiosInstance";
 import { useNavigate } from "@tanstack/react-router";
 import { useAppDispatch } from "../../../store/hooks";
 import { setUser } from "../../../store/authSlice";
+import { toast } from "sonner";
 
 
 
@@ -17,7 +18,11 @@ export function useLogin(){
         },
         onSuccess:(data)=>{
             dispatch(setUser(data.data))
+            toast.success("You can further proceed for otp verification !")
             navigate({to:"/verifyotp"})
+        },
+        onError:()=>{
+            toast.error("Please provide the valid data !")
         }
     })
 }

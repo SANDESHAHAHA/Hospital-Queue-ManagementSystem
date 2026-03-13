@@ -4,6 +4,7 @@ import type { RegisterUserData } from "../../types/authTypes";
 import { API } from "../../../axiosInstance";
 import { setUser } from "../../../store/authSlice";
 import { useNavigate } from "@tanstack/react-router";
+import { toast } from "sonner";
 
 export function useRegister(){
     const dispatch = useAppDispatch()
@@ -19,8 +20,11 @@ export function useRegister(){
         },
         onSuccess:(data)=>{
             dispatch(setUser(data.data))
+            toast.success("User Registered successfully !")
             navigate({to:"/login"})
-
+        },
+        onError:()=>{
+            toast.error("Failed to register the user !")
         }
     })
 }

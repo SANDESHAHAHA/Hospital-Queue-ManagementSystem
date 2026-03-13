@@ -2,6 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import type { VerifyOtpData } from "../../types/authTypes";
 import { API } from "../../../axiosInstance";
+import { toast } from "sonner";
 
 
 
@@ -16,7 +17,11 @@ export function useVerifyOtp(){
         },
         onSuccess:(data)=>{
             localStorage.setItem("token",data.token)
+            toast.success("Otp verified sucessfully !")
             navigate({to:"/home"})
+        },
+        onError:()=>{
+            toast.error("Provide valid otp !")
         }
     })
 }
