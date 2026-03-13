@@ -1,6 +1,9 @@
 import { Link } from "@tanstack/react-router"
 import { Button } from "../../components/ui/button"
 import { Loader2 } from "lucide-react"
+import {useForm, type SubmitHandler} from 'react-hook-form'
+import {z} from 'zod'
+import {zodResolver} from '@hookform/resolvers/zod'
 
 import {
   Card,
@@ -16,7 +19,6 @@ import { Input } from "../../components/ui/input"
 import { Label } from "../../components/ui/label"
 import { Eye, EyeOff, Upload, X } from "lucide-react"
 import {  useState, type ChangeEvent } from "react"
-import type { RegisterUserData } from "../../globals/types/authTypes"
 import { useRegister } from "../../globals/hooks/Auth/useRegister"
 
 export function RegisterForm() {
@@ -24,13 +26,22 @@ export function RegisterForm() {
   const [profileImage, setProfileImage] = useState<string | null>(null)
   const [fileName, setFileName] = useState<string>("")
 
-  const [data,setData] = useState<RegisterUserData>({
+  const [data,setData] = useState<FormFields>({
     userName:"",
     password:"",
     phoneNumber:"",
     email:"",
     image:undefined
   })
+const formSchema = z.object({
+  userName: z.string().min(3, "Username must me more than 3 characters !"),
+  email: z.email("Invalid email address"),
+  password: z.string().min(6,"Password must be at least 6 characters "),
+  phoneNumber: z.string().regex(/^(98|97)\d{8}$/, "Phone Number must start with 98 or 97"),
+  image: z.any().optional()
+})
+
+  type FormFields = z.infer<typeof formSchema>
 
   const registerMutation = useRegister()
 
@@ -59,13 +70,24 @@ export function RegisterForm() {
 
   })
  }
-const handleSubmit: React.ChangeEventHandler<HTMLFormElement> = (e) => {
-  e.preventDefault()
+
+const onSubmit: SubmitHandler<FormFields> = (data) => {
   registerMutation.mutate(data)
  }
 
+ const {register,handleSubmit,formState:{errors}} = useForm<FormFields>({
+  resolver:zodResolver(formSchema),
+  // defaultValues:{
+  //   userName:"john doe",
+  //   email: "john@example.com",
+  //   password:"",
+  //   phoneNumber:"9800000000",
+  //   image:undefined
+  // }
+ });
+
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit(onSubmit)}>
     <Card className="w-full max-w-sm">
       <CardHeader className="flex flex-col items-center text-center pb-2">
         <div className="mb-4">
@@ -93,14 +115,20 @@ const handleSubmit: React.ChangeEventHandler<HTMLFormElement> = (e) => {
                 </div>
               </div>
               <Input
+              {...register("image",{
+                onChange:handleChange
+              })
+              }
                 id="profile-image"
                 name="image"
                 type="file"
                 required
                 accept="image/*"
-                onChange={handleChange}
                 className="hidden"
               />
+              {errors.image && (
+                <p className="text-xs text-red-500 mt-1">Image is required !</p>
+              )}
             </label>
           )}
         </div>
@@ -131,49 +159,66 @@ const handleSubmit: React.ChangeEventHandler<HTMLFormElement> = (e) => {
             {/* User Information */}
             <div className="grid gap-4">
               <div>
-                <Label htmlFor="username" className="text-sm font-medium">
+                <Label htmlFor="userame" className="text-sm font-medium">
                   UserName
                 </Label>
                 <Input
-                  id="username"
+                {...register("userName",{
+                  onChange:handleChange
+                })}
+                  id="userName"
                   name="userName"
-                  onChange={handleChange}
                   type="text"
                   placeholder="john doe"
                   required
                   className="mt-1"
                 />
+              {errors.userName && (
+                <p className="text-xs text-red-500 mt-1">{errors.userName.message}</p>
+              )}
               </div>
               <div>
                 <Label htmlFor="email" className="text-sm font-medium">
                   Email
                 </Label>
                 <Input
+                {...register("email",{
+                  onChange:handleChange
+                })}
                   id="email"
                   name="email"
-                  onChange={handleChange}
                   type="email"
                   placeholder="johndoe@example.com"
                   required
                   className="mt-1"
                 />
               </div>
+              {errors.email && (
+                <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>
+              )}
               <div>
                 <Label htmlFor="phoneNumber" className="text-sm font-medium">
                   Phone Number
                 </Label>
                 <Input
+                {
+                  ...register("phoneNumber",{
+                    onChange:handleChange
+                  })
+                }
                   id="PhoneNumber"
                   type="tel"
                   name="phoneNumber"
                   placeholder="9800000005"
-                  onChange={handleChange}
                   minLength={10}
                   maxLength={10}
                   required
                   className="mt-1"
                 />
               </div>
+              {errors.phoneNumber && (
+                <p className="text-xs text-red-500 mt-1">{errors.phoneNumber.message}</p>
+              )}
             </div>
 
             <div className="grid gap-2">
@@ -189,9 +234,12 @@ const handleSubmit: React.ChangeEventHandler<HTMLFormElement> = (e) => {
               </div>
               <div className="relative">
                 <Input
+                {...register("password",{
+                  onChange:handleChange
+                })}
                   id="password"
-                  onChange={handleChange}
                   name="password"
+                  autoComplete="new-password"
                   type={showPassword ? "text" : "password"}
                   required
                   className="pr-10"
@@ -209,6 +257,9 @@ const handleSubmit: React.ChangeEventHandler<HTMLFormElement> = (e) => {
                   )}
                 </button>
               </div>
+              {errors.password && (
+                <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>
+              )}
             </div>
           </div>
       </CardContent>

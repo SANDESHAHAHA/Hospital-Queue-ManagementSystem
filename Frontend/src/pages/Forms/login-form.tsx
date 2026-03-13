@@ -1,5 +1,7 @@
 import { Link } from "@tanstack/react-router"
 import { Button } from "../../components/ui/button"
+import {useForm, type SubmitHandler} from 'react-hook-form'
+import {zodResolver} from '@hookform/resolvers/zod'
 import {
   Card,
   CardAction,
@@ -14,7 +16,7 @@ import { Label } from "../../components/ui/label"
 import { Eye, EyeOff, Loader2 } from "lucide-react"
 import { useState, type ChangeEvent } from "react"
 import { useLogin } from "../../globals/hooks/Auth/useLogin"
-import type { LoginData } from "../../globals/types/authTypes"
+import { LoginUserSchema, type LoginData } from "../../globals/types/authTypes"
 
 export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false)
@@ -32,12 +34,16 @@ export function LoginForm() {
     })
   }
 
-  const handleLoginSubmit = (e:ChangeEvent<HTMLFormElement>)=>{
-    e.preventDefault()
+
+  const {register,handleSubmit,formState:{errors}} = useForm<LoginData>({
+  resolver: zodResolver(LoginUserSchema)
+  })
+
+  const onSubmit:SubmitHandler<LoginData> = (data) =>{
     loginMutation.mutate(data)
   }
   return (
-<form onSubmit={handleLoginSubmit}>
+<form onSubmit={handleSubmit(onSubmit)}>
 
     <Card className="w-full max-w-sm">
       <CardHeader>
@@ -68,14 +74,18 @@ export function LoginForm() {
               <Input
                 id="email"
                 type="email"
-                onChange={handleInputChange}
+                {...register("email",{
+                  onChange:handleInputChange
+                })}
                 name="email"
                 placeholder="johndoe@example.com"
                 required
                 className="mt-1"
               />
             </div>
-
+              {errors.email && (
+                <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>
+              )}
             {/* Password Field with Eye Toggle */}
             <div className="grid gap-2">
               <div className="flex items-center justify-between">
@@ -92,11 +102,14 @@ export function LoginForm() {
               <div className="relative">
                 <Input
                   id="password"
+                  {...register("password",{
+                    onChange:handleInputChange
+                  })}
                   name="password"
-                  onChange={handleInputChange}
                   type={showPassword ? "text" : "password"}
                   required
                   className="pr-10"
+                  autoComplete="new-password"
                 />
                 <button
                   type="button"
@@ -111,6 +124,9 @@ export function LoginForm() {
                   )}
                 </button>
               </div>
+              {errors.password && (
+                <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>
+              )}
             </div>
           </div>
       </CardContent>
